@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Reza el Santo Rosario con voz guiada, la oración en pantalla y los misterios del día.">
+<meta name="theme-color" content="#2C4A9A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Rosario">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon.png" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}*,*::before,*::after{box-sizing:border-box}body{margin:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Santo Rosario</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Literata:opsz,wght@7..72,400;7..72,500&family=Figtree:wght@400;500;600&display=swap">
+<style>
+:root{
+--bg:#EDEFF4; --surface:#FFFFFF; --ink:#1B2340; --muted:#5A6383;
+--lapis:#2C4A9A; --wax:#A97818; --bead:#C6CBDB; --line:#DADEE9; --glow:rgba(169,120,24,.18);
+--f-display:"Marcellus","Trajan Pro",Georgia,serif;
+--f-text:"Literata",Georgia,"Times New Roman",serif;
+--f-ui:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+--scale:1;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+--bg:#0D1222; --surface:#161D34; --ink:#ECE6D8; --muted:#9AA2BE;
+--lapis:#93ABF2; --wax:#E3B65A; --bead:#2E3756; --line:#262F4E; --glow:rgba(227,182,90,.22); color-scheme:dark}}
+:root[data-theme="dark"]{
+--bg:#0D1222; --surface:#161D34; --ink:#ECE6D8; --muted:#9AA2BE;
+--lapis:#93ABF2; --wax:#E3B65A; --bead:#2E3756; --line:#262F4E; --glow:rgba(227,182,90,.22); color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:0}
+.app{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px;padding-block:14px 120px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--lapis);outline-offset:2px}
+header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-family:var(--f-display);font-weight:400;font-size:30px;line-height:1.1;margin:2px 0 0;text-wrap:balance}
+h1 em{font-style:normal;color:var(--wax)}
+.iconbtn{background:var(--surface);border:1px solid var(--line);border-radius:999px;width:44px;height:44px;display:grid;place-items:center;flex:none}
+.iconbtn svg{width:20px;height:20px}
+.beads{display:grid;place-items:center}
+.beads svg{width:100%;max-width:260px;height:auto}
+.b{fill:var(--bead);transition:fill .25s}
+.b.done{fill:var(--lapis);opacity:.55}
+.b.now{fill:var(--wax)}
+.halo{fill:var(--glow)}
+.cord{fill:none;stroke:var(--line);stroke-width:1.5}
+.crossmark{stroke:var(--bead);stroke-width:5;stroke-linecap:round;transition:stroke .25s}
+.crossmark.done{stroke:var(--lapis);opacity:.55}.crossmark.now{stroke:var(--wax);opacity:1}
+.cnum{font-family:var(--f-display);font-size:44px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.csub{font-family:var(--f-ui);font-size:11px;letter-spacing:.12em;text-transform:uppercase;fill:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px 20px 22px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.where{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.where b{color:var(--wax);font-weight:600}
+.pname{font-family:var(--f-display);font-size:22px;line-height:1.2;margin:0;text-wrap:balance}
+.mystery{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:4px}
+.mystery .cita{font-size:13px;color:var(--lapis);font-weight:600;letter-spacing:.02em}
+.mystery p{margin:0;font-family:var(--f-text);font-style:italic;color:var(--muted);font-size:calc(16px*var(--scale))}
+.text{display:flex;flex-direction:column;gap:12px}
+.text p{margin:0;font-family:var(--f-text);font-size:calc(19px*var(--scale));line-height:1.6;max-width:65ch;border-radius:8px;transition:background .25s}
+.text p .who{display:block;font-family:var(--f-ui);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:2px}
+.text p.yours .who{color:var(--wax)}
+.w{border-radius:4px;transition:color .15s,background-color .15s}
+.kara .w{color:var(--muted);opacity:.7}
+.kara .w.past{color:var(--ink);opacity:1}
+.kara .w.now{color:var(--ink);opacity:1;background:var(--glow);box-shadow:0 0 0 3px var(--glow)}
+.mystery .frase{font-style:italic;color:var(--ink);font-size:calc(17px*var(--scale))}
+.mystery .refl{font-style:normal;color:var(--muted)}
+.mystery .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-top:6px}
+.mystery.compact{border-top:none;padding:12px 14px;background:var(--bg);border-radius:12px;gap:2px}
+.mystery.compact b{font-family:var(--f-display);font-weight:400;font-size:16px}
+.mystery.compact .frase{font-size:calc(15px*var(--scale))}
+.mystery.compact .refl{font-size:calc(14px*var(--scale))}
+.intent{font-size:14px;color:var(--muted);font-family:var(--f-text);font-style:italic}
+.progress{height:4px;background:var(--line);border-radius:4px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--wax);width:0;transition:width .3s}
+.note{font-size:13px;color:var(--muted);text-align:center;margin:0}
+.dock{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
+.dock .row{max-width:560px;margin:0 auto;display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center}
+.nav{background:var(--surface);border:1px solid var(--line);border-radius:14px;height:56px;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:600}
+.nav svg{width:18px;height:18px}
+.play{width:72px;height:72px;border-radius:50%;border:none;background:var(--wax);color:var(--surface);display:grid;place-items:center;box-shadow:0 0 0 6px var(--glow)}
+.play svg{width:28px;height:28px}
+.play:disabled{opacity:.4}
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:16px}
+.sheet h2{font-family:var(--f-display);font-weight:400;font-size:20px;margin:0}
+.field{display:flex;flex-direction:column;gap:6px}
+.field>label,.field>span{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:8px 14px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--lapis);border-color:var(--lapis);color:var(--surface)}
+select,input[type=text]{font:inherit;font-size:15px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);width:100%;min-width:0}
+input[type=range]{width:100%;accent-color:var(--wax)}
+.help{font-size:13px;color:var(--muted);margin:0}
+.voicerow{display:flex;gap:8px;align-items:center}
+.voicerow select{flex:1}
+.voicerow .reset{flex:none}
+.tip{font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.tip summary{cursor:pointer;font-weight:600;color:var(--lapis)}
+.tip p{margin:8px 0 0;color:var(--ink)}
+.reset{align-self:flex-start;background:none;border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:14px}
+.done-card{text-align:center;align-items:center}
+.done-card .pname{font-size:26px}
+.toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:14px;z-index:5;max-width:calc(100% - 32px)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+<div>
+<div class="eyebrow" id="today">Hoy</div>
+<h1>Misterios <em id="setName">Gloriosos</em></h1>
+</div>
+<button class="iconbtn" id="btnSettings" aria-label="Ajustes" aria-expanded="false">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+</button>
+</header>
+<section class="sheet" id="settings" hidden>
+<h2>Ajustes</h2>
+<div class="field"><span>Misterios</span>
+<div class="seg" id="segSet"></div>
+<p class="help">"Del día" elige solos: lunes y sábado Gozosos, martes y viernes Dolorosos, miércoles y domingo Gloriosos, jueves Luminosos.</p>
+</div>
+<div class="field"><span>Voz</span>
+<div class="seg" id="segMode">
+<button data-v="todo">La voz reza todo</button>
+<button data-v="coros">Rezamos a dos coros</button>
+<button data-v="silencio">Sin voz</button>
+</div>
+<p class="help">A dos coros: la voz dice la primera parte y deja el espacio para que tú respondas la segunda.</p>
+</div>
+<div class="field"><label for="voiceSel">Voz del guía</label>
+<div class="voicerow"><select id="voiceSel"></select><button class="reset" id="btnTest" type="button">Probar</button></div>
+<p class="help">La app escoge sola la voz más natural de tu equipo. Las voces disponibles dependen de cada celular.</p>
+</div>
+<div class="field"><label for="rate">Velocidad de la voz</label><input type="range" id="rate" min="0.6" max="1.3" step="0.05" value="0.9"></div>
+<div class="field"><label for="scale">Tamaño de la letra</label><input type="range" id="scale" min="0.9" max="1.6" step="0.05" value="1"></div>
+<div class="field"><label for="intent">Mi intención (opcional)</label><input type="text" id="intent" placeholder="Por la salud de mi mamá…" maxlength="140"></div>
+<button class="reset" id="btnReset">Empezar el Rosario desde el inicio</button>
+</section>
+<div class="beads"><svg id="ring" viewBox="0 0 300 360" role="img" aria-label="Cuentas del Rosario"></svg></div>
+<div class="progress" aria-hidden="true"><i id="bar"></i></div>
+<article class="card" id="card" aria-live="polite"></article>
+<p class="note" id="note"></p>
+</div>
+<div class="dock">
+<div class="row">
+<button class="nav" id="btnPrev" aria-label="Oración anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>Atrás</button>
+<button class="play" id="btnPlay" aria-label="Rezar con voz"></button>
+<button class="nav" id="btnNext" aria-label="Siguiente oración">Siguiente<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+</div>
+</div>
+<script>
+(function(){
+"use strict";
+var P = {
+contricion:{n:"Acto de contrición",g:"Señor mío Jesucristo, Dios y Hombre verdadero, Creador, Padre y Redentor mío; por ser Tú quien eres, Bondad infinita, y porque te amo sobre todas las cosas, me pesa de todo corazón haberte ofendido; también me pesa porque puedes castigarme con las penas del infierno. Ayudado de tu divina gracia, propongo firmemente nunca más pecar, confesarme y cumplir la penitencia que me fuere impuesta. Amén."},
+senal:{n:"Señal de la Cruz",g:"Por la señal de la Santa Cruz, de nuestros enemigos líbranos, Señor, Dios nuestro. En el nombre del Padre, y del Hijo, y del Espíritu Santo. Amén."},
+credo:{n:"Credo",g:"Creo en Dios, Padre todopoderoso, Creador del cielo y de la tierra. Creo en Jesucristo, su único Hijo, nuestro Señor, que fue concebido por obra y gracia del Espíritu Santo, nació de Santa María Virgen, padeció bajo el poder de Poncio Pilato, fue crucificado, muerto y sepultado, descendió a los infiernos, al tercer día resucitó de entre los muertos, subió a los cielos y está sentado a la derecha de Dios, Padre todopoderoso. Desde allí ha de venir a juzgar a vivos y muertos. Creo en el Espíritu Santo, la santa Iglesia católica, la comunión de los santos, el perdón de los pecados, la resurrección de la carne y la vida eterna. Amén."},
+padre:{n:"Padre Nuestro",g:"Padre nuestro, que estás en el cielo, santificado sea tu Nombre; venga a nosotros tu reino; hágase tu voluntad en la tierra como en el cielo.",r:"Danos hoy nuestro pan de cada día; perdona nuestras ofensas, como también nosotros perdonamos a los que nos ofenden; no nos dejes caer en la tentación, y líbranos del mal. Amén."},
+ave:{n:"Avemaría",g:"Dios te salve, María, llena eres de gracia, el Señor es contigo. Bendita tú eres entre todas las mujeres, y bendito es el fruto de tu vientre, Jesús.",r:"Santa María, Madre de Dios, ruega por nosotros, pecadores, ahora y en la hora de nuestra muerte. Amén."},
+gloria:{n:"Gloria",g:"Gloria al Padre, y al Hijo, y al Espíritu Santo.",r:"Como era en el principio, ahora y siempre, por los siglos de los siglos. Amén."},
+fatima:{n:"Oh Jesús mío",g:"Oh Jesús mío, perdona nuestros pecados, líbranos del fuego del infierno, lleva al cielo a todas las almas, especialmente a las más necesitadas de tu misericordia."},
+salve:{n:"Salve",g:"Dios te salve, Reina y Madre de misericordia, vida, dulzura y esperanza nuestra; Dios te salve. A ti llamamos los desterrados hijos de Eva; a ti suspiramos, gimiendo y llorando, en este valle de lágrimas. Ea, pues, Señora, abogada nuestra, vuelve a nosotros esos tus ojos misericordiosos; y después de este destierro muéstranos a Jesús, fruto bendito de tu vientre. ¡Oh clementísima, oh piadosa, oh dulce Virgen María!",r:"Ruega por nosotros, Santa Madre de Dios, para que seamos dignos de alcanzar las promesas de nuestro Señor Jesucristo. Amén."},
+final:{n:"Señal de la Cruz",g:"En el nombre del Padre, y del Hijo, y del Espíritu Santo. Amén."}
+};
+var M = {
+gozosos:{n:"Gozosos",adj:"gozoso",items:[
+["La Anunciación del ángel a María",[
+["Lc 1,38","Hágase en mí según tu palabra.","María no lo entiende todo, pero confía. Entrega hoy a Dios lo que no puedes controlar."],
+["Is 7,14","La virgen concebirá y dará a luz un hijo.","Dios cumple sus promesas aunque parezcan tardar. Pide paciencia para esperar su tiempo."],
+["Lc 1,30","No temas, María.","El miedo no tiene la última palabra. Pon en manos de Dios lo que hoy te inquieta."],
+["Lc 1,37","Para Dios nada es imposible.","Piensa en una situación que parece no tener salida y ofrécela con fe en este misterio."]]],
+["La Visitación de María a su prima Isabel",[
+["Lc 1,39","María se puso en camino y fue de prisa.","El amor no se queda esperando. ¿A quién puedes visitar o llamar hoy?"],
+["Lc 1,42","Bendita tú entre las mujeres.","Isabel reconoce la obra de Dios en otra persona. Aprende hoy a bendecir en vez de criticar."],
+["Lc 1,46-47","Mi alma glorifica al Señor.","María responde con alabanza. Agradece a Dios tres cosas concretas de tu día."],
+["Lc 1,41","La criatura saltó de alegría en su seno.","Llevar a Jesús a otros trae alegría. Pide ser portador de paz en tu casa."]]],
+["El Nacimiento del Hijo de Dios en Belén",[
+["Lc 2,7","Lo acostó en un pesebre, porque no había lugar para ellos.","Haz espacio para Jesús en tu agenda y en tu corazón."],
+["Lc 2,10","Les anuncio una gran alegría.","La alegría cristiana nace de saberse amado. Ofrece este misterio por quien hoy está triste."],
+["Jn 1,14","La Palabra se hizo carne y habitó entre nosotros.","Dios se hace cercano. Búscalo hoy en lo sencillo de cada día."],
+["Lc 2,19","María conservaba todas estas cosas en su corazón.","Aprende de María a guardar silencio y meditar lo que vives."]]],
+["La Presentación de Jesús en el Templo",[
+["Lc 2,22","Lo llevaron a Jerusalén para presentarlo al Señor.","Ofrece a Dios tu familia y a las personas que amas."],
+["Lc 2,30","Mis ojos han visto a tu Salvador.","Simeón esperó toda la vida sin cansarse. Pide perseverancia en la oración."],
+["Lc 2,35","Una espada te atravesará el alma.","María acepta también el dolor. Reza por las madres que sufren por sus hijos."],
+["Lc 2,38","Ana hablaba del niño a todos.","Ana, ya anciana, sigue sirviendo a Dios. Reza por los abuelos y los mayores."]]],
+["El Niño Jesús perdido y hallado en el Templo",[
+["Lc 2,48","Tu padre y yo te buscábamos angustiados.","Si sientes a Dios lejos, sigue buscándolo. Él se deja encontrar."],
+["Lc 2,49","¿No sabían que debo ocuparme de las cosas de mi Padre?","Pide descubrir lo que Dios quiere de tu vida."],
+["Lc 2,51","Bajó con ellos a Nazaret y vivió sujeto a ellos.","Reza por la paz y el respeto entre padres e hijos."],
+["Lc 2,52","Jesús crecía en sabiduría, en estatura y en gracia.","Reza por los niños y jóvenes, para que crezcan cerca de Dios."]]]]},
+luminosos:{n:"Luminosos",adj:"luminoso",items:[
+["El Bautismo de Jesús en el Jordán",[
+["Mt 3,17","Este es mi Hijo amado, en quien me complazco.","Tú también eres hijo amado de Dios. Recuerda hoy tu bautismo."],
+["Mt 3,16","Vio al Espíritu de Dios bajar como una paloma.","Pide al Espíritu Santo que guíe tus decisiones."],
+["Mt 3,15","Conviene que así cumplamos toda justicia.","Jesús se pone en la fila de los pecadores. Pide un corazón humilde."],
+["Jn 1,29","Este es el Cordero de Dios que quita el pecado del mundo.","Entrega a Jesús aquello de lo que necesitas ser perdonado."]]],
+["Jesús se revela en las bodas de Caná",[
+["Jn 2,5","Hagan lo que él les diga.","Escucha hoy la voz de Jesús y obedécela en algo concreto."],
+["Jn 2,3","No tienen vino.","María nota lo que falta antes de que nadie lo pida. Preséntale las necesidades de tu familia."],
+["Jn 2,10","Has guardado el vino bueno hasta ahora.","Con Dios lo mejor está por venir. Reza por los matrimonios."],
+["Jn 2,11","Así comenzó Jesús sus signos, y sus discípulos creyeron en él.","Pide fe para ver los pequeños milagros de cada día."]]],
+["El anuncio del Reino de Dios y la invitación a la conversión",[
+["Mc 1,15","Conviértanse y crean en el Evangelio.","La conversión es de cada día. ¿Qué paso concreto puedes dar hoy?"],
+["Mt 5,3","Dichosos los pobres de espíritu.","Pide un corazón sencillo, libre de lo que te ata."],
+["Lc 5,20","Tus pecados te son perdonados.","Pide la gracia de una buena confesión."],
+["Mt 6,33","Busquen primero el Reino de Dios.","Ordena tus prioridades: Dios primero, y lo demás vendrá."]]],
+["La Transfiguración del Señor",[
+["Lc 9,35","Este es mi Hijo, el elegido; escúchenlo.","Dedica hoy unos minutos a leer el Evangelio."],
+["Lc 9,29","Mientras oraba, el aspecto de su rostro cambió.","La oración transforma. Pide perseverar en ella."],
+["Lc 9,33","Maestro, qué bien estamos aquí.","Agradece los momentos de consuelo que Dios te ha regalado."],
+["Mt 17,7","Levántense, no tengan miedo.","Ofrece este misterio por quien hoy vive con miedo."]]],
+["La institución de la Eucaristía",[
+["Lc 22,19","Esto es mi cuerpo, que se entrega por ustedes.","Pide amor y respeto por la Eucaristía."],
+["Jn 6,35","Yo soy el pan de vida.","Reza por quienes tienen hambre de pan y hambre de Dios."],
+["Jn 13,1","Los amó hasta el extremo.","Pide amar sin medida a quienes tienes cerca."],
+["1 Cor 11,24","Hagan esto en memoria mía.","Reza por los sacerdotes y por nuevas vocaciones."]]]]},
+dolorosos:{n:"Dolorosos",adj:"doloroso",items:[
+["La oración de Jesús en el Huerto",[
+["Lc 22,42","Que no se haga mi voluntad, sino la tuya.","Pide aceptar la voluntad de Dios en lo que hoy te cuesta."],
+["Mt 26,38","Mi alma está triste hasta la muerte.","Jesús conoce la angustia. Reza por quienes sufren depresión o soledad."],
+["Mt 26,41","Velen y oren para no caer en tentación.","Pide fuerza ante la tentación que más te cuesta."],
+["Lc 22,43","Se le apareció un ángel del cielo que lo confortaba.","Pide ser consuelo para alguien que sufre."]]],
+["La flagelación del Señor",[
+["Jn 19,1","Pilato tomó a Jesús y lo mandó azotar.","Ofrece este misterio por los enfermos y por quienes sufren dolor físico."],
+["Is 53,5","Por sus llagas hemos sido curados.","Entrega a Jesús tus heridas para que Él las sane."],
+["Is 50,6","Ofrecí mi espalda a los que me golpeaban.","Reza por las víctimas de violencia y maltrato."],
+["1 Pe 2,24","Él cargó nuestros pecados en su cuerpo.","Pide pureza y respeto por tu cuerpo y el de los demás."]]],
+["La coronación de espinas",[
+["Mt 27,29","Le pusieron en la cabeza una corona de espinas.","Pide humildad cuando tu orgullo sea herido."],
+["Mc 15,18","¡Salve, rey de los judíos!","Jesús soporta la burla en silencio. Reza por quienes son humillados."],
+["Jn 19,5","Aquí tienen al hombre.","Mira a Jesús en cada persona que sufre."],
+["Jn 18,36","Mi Reino no es de este mundo.","Pide valorar lo eterno por encima del éxito y las apariencias."]]],
+["Jesús con la cruz a cuestas camino del Calvario",[
+["Lc 9,23","El que quiera seguirme, tome su cruz cada día.","Ofrece con amor la cruz de hoy, por pequeña que sea."],
+["Lc 23,26","Obligaron a Simón de Cirene a llevar la cruz.","¿A quién puedes ayudar hoy a cargar su peso?"],
+["Lc 23,28","Hijas de Jerusalén, no lloren por mí.","Reza por las madres y las familias que lloran."],
+["Mt 11,28","Vengan a mí los que están cansados y agobiados.","Entrega a Jesús tu cansancio."]]],
+["La crucifixión y muerte de Jesús",[
+["Lc 23,34","Padre, perdónalos, porque no saben lo que hacen.","Piensa en alguien a quien te cuesta perdonar y ofrécelo aquí."],
+["Jn 19,27","Ahí tienes a tu madre.","Jesús nos regala a María. Recíbela hoy en tu casa."],
+["Lc 23,43","Hoy estarás conmigo en el paraíso.","Nunca es tarde para volver a Dios. Reza por quienes van a morir hoy."],
+["Lc 23,46","Padre, en tus manos encomiendo mi espíritu.","Pon tu vida entera en las manos del Padre."]]]]},
+gloriosos:{n:"Gloriosos",adj:"glorioso",items:[
+["La Resurrección del Hijo de Dios",[
+["Mc 16,6","No está aquí, ha resucitado.","La muerte no tiene la última palabra. Pide una fe viva."],
+["Jn 20,15","Mujer, ¿por qué lloras?","Jesús conoce tus lágrimas. Reza por quienes están de duelo."],
+["Jn 20,29","Dichosos los que creen sin haber visto.","Pide fe para los momentos de duda."],
+["Lc 24,32","¿No ardía nuestro corazón mientras nos hablaba?","Pide reconocer a Jesús en su Palabra y en la Eucaristía."]]],
+["La Ascensión del Señor al cielo",[
+["Mt 28,20","Yo estoy con ustedes todos los días.","No estás solo. Pide sentir hoy la compañía de Jesús."],
+["Mt 28,19","Vayan y hagan discípulos a todos los pueblos.","Pide valor para hablar de Dios con sencillez."],
+["Hch 1,11","¿Qué hacen ahí mirando al cielo?","La esperanza del cielo se vive sirviendo en la tierra."],
+["Jn 14,2","Voy a prepararles un lugar.","Reza por tus seres queridos que ya partieron."]]],
+["La venida del Espíritu Santo",[
+["Hch 2,4","Todos quedaron llenos del Espíritu Santo.","Pide hoy los dones del Espíritu Santo."],
+["Hch 1,14","Perseveraban en la oración con María, la madre de Jesús.","Reza por la unidad de la Iglesia."],
+["Gál 5,22","El fruto del Espíritu es amor, alegría y paz.","Pide uno de estos frutos para tu vida de hoy."],
+["Jn 14,26","El Espíritu Santo les enseñará todo.","Pide luz para una decisión que tengas pendiente."]]],
+["La Asunción de María al cielo",[
+["Lc 1,48","Todas las generaciones me llamarán bienaventurada.","Honra hoy a María con amor de hijo."],
+["Lc 1,49","El Poderoso ha hecho obras grandes en mí.","Agradece lo que Dios ha hecho en tu vida."],
+["Ap 11,19","Se abrió el santuario de Dios en el cielo.","Pide la gracia de una buena muerte."],
+["1 Cor 15,54","La muerte ha sido vencida.","Vive con la esperanza de la resurrección."]]],
+["La Coronación de María como Reina del cielo y de la tierra",[
+["Ap 12,1","Una mujer vestida de sol, con una corona de doce estrellas.","Pide confiar en la intercesión de María."],
+["Lc 1,45","Dichosa tú que has creído.","María es reina porque creyó. Pide una fe como la suya."],
+["Sal 45,10","De pie a tu derecha está la reina.","Pide a María que reine en tu familia."],
+["Lc 1,52","Derribó a los poderosos y enalteció a los humildes.","La verdadera grandeza está en servir. Pide humildad."]]]]}
+};
+function occ(key){
+var n=new Date(),d=Math.floor(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())/86400000);
+var week=Math.floor((d+4)/7),dow=(d+4)%7,days=[],i;
+for(i=0;i<7;i++)if(BYDAY[i]===key)days.push(i);
+if(!days.length)return d;
+return week*days.length+days.filter(function(w){return w<=dow;}).length;
+}
+function item(d){
+var k=setKey(),e=M[k].items[d],vs=e[1],v=vs[occ(k)%vs.length];
+return {t:e[0],cita:v[0],frase:v[1],refl:v[2]};
+}
+var BYDAY = ["gloriosos","gozosos","dolorosos","gloriosos","luminosos","dolorosos","gozosos"];
+var DAYS = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+var ORD = ["Primer","Segundo","Tercer","Cuarto","Quinto"];
+var VIRT = ["por el aumento de la fe","por el aumento de la esperanza","por el aumento de la caridad"];
+var S = {set:"auto",mode:"todo",rate:0.9,voice:"",scale:1,intent:"",cur:0,day:""};
+function todayKey(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
+try{var saved=JSON.parse(localStorage.getItem("rosario")||"null");if(saved)Object.assign(S,saved);}catch(e){}
+var resumed=false;
+if(S.day!==todayKey()){S.cur=0;S.day=todayKey();}else if(S.cur>0){resumed=true;}
+function save(){try{localStorage.setItem("rosario",JSON.stringify(S));}catch(e){}}
+function setKey(){return S.set==="auto"?BYDAY[new Date().getDay()]:S.set;}
+var steps=[];
+function build(){
+var k=setKey(),m=M[k];steps=[];
+steps.push({k:"senal",bead:"cross",sec:"Inicio"});
+steps.push({k:"contricion",bead:"cross",sec:"Inicio"});
+steps.push({k:"credo",bead:"cross",sec:"Inicio"});
+steps.push({k:"padre",bead:"pBig",sec:"Inicio"});
+steps.push({k:"ave",bead:"pS",sec:"Inicio"});
+steps.push({k:"gloria",bead:"pS",sec:"Inicio"});
+for(var d=0;d<5;d++){
+var sec=ORD[d]+" misterio "+m.adj;
+steps.push({k:"mist",bead:"r"+(d*11),sec:sec,d:d});
+steps.push({k:"padre",bead:"r"+(d*11),sec:sec,d:d});
+for(var j=0;j<10;j++)steps.push({k:"ave",bead:"r"+(d*11+1+j),sec:sec,d:d,n:j+1,of:10});
+steps.push({k:"gloria",bead:"r"+(d*11+10),sec:sec,d:d});
+steps.push({k:"fatima",bead:"r"+(d*11+10),sec:sec,d:d});
+}
+steps.push({k:"salve",bead:"medal",sec:"Final"});
+steps.push({k:"final",bead:"cross",sec:"Final"});
+steps.push({k:"fin",bead:null,sec:"Final"});
+if(S.cur>=steps.length)S.cur=0;
+}
+var NS="http://www.w3.org/2000/svg",ring=document.getElementById("ring"),beadEls={},centerNum,centerSub;
+function el(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+function drawRing(){
+ring.innerHTML="";
+var cx=150,cy=118,r=100,slots=57;
+ring.appendChild(el("circle",{cx:cx,cy:cy,r:r,class:"cord"}));
+ring.appendChild(el("path",{d:"M150 218 L150 312",class:"cord"}));
+var halo=el("circle",{r:13,class:"halo",id:"halo"});ring.appendChild(halo);
+function add(id,x,y,rad){var c=el("circle",{cx:x.toFixed(1),cy:y.toFixed(1),r:rad,class:"b"});ring.appendChild(c);beadEls[id]=c;}
+for(var i=0;i<55;i++){
+var a=(90+(i+1)*360/(slots-1))*Math.PI/180;
+add("r"+i,cx+r*Math.cos(a),cy+r*Math.sin(a),i%11===0?7:4.6);
+}
+// medalla
+var md=el("rect",{x:141,y:210,width:18,height:22,rx:8,class:"b"});ring.appendChild(md);beadEls.medal=md;
+add("pS",150,256,5.5);add("pBig",150,290,7);
+var cr=el("path",{d:"M150 314 L150 350 M138 326 L162 326",class:"crossmark"});ring.appendChild(cr);beadEls.cross=cr;
+centerNum=el("text",{x:cx,y:cy+8,"text-anchor":"middle",class:"cnum"});
+centerSub=el("text",{x:cx,y:cy+32,"text-anchor":"middle",class:"csub"});
+ring.appendChild(centerNum);ring.appendChild(centerSub);
+}
+function paintRing(){
+var done={},cur=steps[S.cur];
+for(var i=0;i<S.cur;i++)if(steps[i].bead)done[steps[i].bead]=1;
+if(cur.k==="fin")for(i=0;i<steps.length;i++)if(steps[i].bead)done[steps[i].bead]=1;
+for(var id in beadEls){var e=beadEls[id],base=id==="cross"?"crossmark":"b";
+e.setAttribute("class",base+(cur.bead===id?" now":done[id]?" done":""));}
+var halo=document.getElementById("halo"),b=cur.bead&&beadEls[cur.bead];
+if(b&&b.tagName==="circle"){halo.setAttribute("cx",b.getAttribute("cx"));halo.setAttribute("cy",b.getAttribute("cy"));halo.style.display="";}
+else if(cur.bead==="medal"){halo.setAttribute("cx",150);halo.setAttribute("cy",221);halo.style.display="";}
+else if(cur.bead==="cross"){halo.setAttribute("cx",150);halo.setAttribute("cy",326);halo.style.display="";}
+else halo.style.display="none";
+if(cur.k==="ave"&&cur.of){centerNum.textContent=cur.n;centerSub.textContent="de "+cur.of+" avemarías";}
+else if(cur.d!=null){centerNum.textContent=cur.d+1;centerSub.textContent="misterio de 5";}
+else if(cur.k==="fin"){centerNum.textContent="✓";centerSub.textContent="terminado";}
+else{centerNum.textContent="";centerSub.textContent=cur.sec;}
+}
+var card=document.getElementById("card");
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function wrap(t){return String(t).replace(/[^\s]+|\s+/g,function(w,off){return /\s/.test(w[0])?w:'<span class="w" data-s="'+off+'">'+esc(w)+'</span>';});}
+function render(){
+var st=steps[S.cur],m=M[setKey()],h="";
+document.getElementById("setName").textContent=m.n;
+document.getElementById("bar").style.width=(S.cur/(steps.length-1)*100)+"%";
+card.classList.toggle("done-card",st.k==="fin");
+if(st.k==="fin"){
+h='<div class="where"><span>Final</span></div><h2 class="pname">Rosario terminado</h2>'+
+'<p class="help">Que la Virgen María te acompañe hoy.</p>'+
+'<button class="reset" id="again">Rezar otro Rosario</button>';
+card.innerHTML=h;
+document.getElementById("again").onclick=function(){go(0);};
+}else{
+var count=st.k==="ave"&&st.of?'<b>'+st.n+' de '+st.of+'</b>':'';
+h+='<div class="where"><span>'+esc(st.sec)+'</span>'+count+'</div>';
+if(st.k==="mist"){
+var it=item(st.d);
+h+='<h2 class="pname" id="mt">'+wrap(it.t)+'</h2>';
+h+='<div class="mystery"><span class="cita">'+esc(it.cita)+'</span><p class="frase">«<span id="mf">'+wrap(it.frase)+'</span>»</p>'+
+'<span class="lbl">Reflexión de hoy</span><p class="refl" id="mr">'+wrap(it.refl)+'</p></div>';
+}else{
+var p=P[st.k];
+if(st.d!=null){
+var iq=item(st.d);
+h+='<div class="mystery compact"><b>'+esc(iq.t)+'</b><span class="cita">'+esc(iq.cita)+'</span>'+
+'<p class="frase">«'+esc(iq.frase)+'»</p><p class="refl">'+esc(iq.refl)+'</p></div>';
+}
+h+='<h2 class="pname">'+esc(p.n)+(st.virt?' <span class="help">'+esc(st.virt)+'</span>':'')+'</h2>';
+if(st.k==="contricion"&&S.intent)h+='<p class="intent">Ofrezco este Rosario: <span id="mi">'+wrap(S.intent)+'</span></p>';
+var co=S.mode==="coros";
+h+='<div class="text"><p id="pg">'+(p.r?'<span class="who">'+(co?'Guía':'Primera parte')+'</span>':'')+wrap(p.g)+'</p>';
+if(p.r)h+='<p id="pr"'+(co?' class="yours"':'')+'><span class="who">'+(co?'Tú respondes':'Segunda parte')+'</span>'+wrap(p.r)+'</p>';
+h+='</div>';
+}
+card.innerHTML=h;
+}
+paintRing();
+document.getElementById("btnPrev").disabled=S.cur===0;
+save();
+}
+var synth=window.speechSynthesis||null,voices=[],playing=false,runId=0,wake=null;
+var playBtn=document.getElementById("btnPlay");
+var ICON_PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>';
+var ICON_PAUSE='<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>';
+function loadVoices(){
+if(!synth)return;
+voices=synth.getVoices().filter(function(v){return /^es/i.test(v.lang);});
+voices.sort(function(a,b){return quality(b)-quality(a);});
+var sel=document.getElementById("voiceSel");sel.innerHTML="";
+if(!voices.length){var o=document.createElement("option");o.textContent="Voz en español del dispositivo";sel.appendChild(o);return;}
+var gNat=document.createElement("optgroup"),gStd=document.createElement("optgroup");
+gNat.label="Más naturales";gStd.label="Otras voces";
+voices.forEach(function(v){
+var o=document.createElement("option");o.value=v.voiceURI;o.textContent=v.name.replace(/^Microsoft\s+/,"")+" · "+v.lang;
+(isNatural(v)?gNat:gStd).appendChild(o);
+});
+if(gNat.children.length)sel.appendChild(gNat);
+if(gStd.children.length)sel.appendChild(gStd);
+// Si la persona no ha elegido, usamos la voz más natural disponible.
+if(!(S.voice&&voices.some(function(v){return v.voiceURI===S.voice;})))S.voice=voices[0].voiceURI;
+sel.value=S.voice;
+}
+function isNatural(v){return /natural|neural|online|premium|enhanced|mejorada|wavenet|siri/i.test(v.name)||(/google/i.test(v.name)&&!v.localService);}
+function quality(v){
+var s=0,n=v.name,l=v.lang.replace("_","-");
+if(/natural|neural|wavenet/i.test(n))s+=60;
+if(/premium/i.test(n))s+=55;
+if(/enhanced|mejorada|siri/i.test(n))s+=45;
+if(/online/i.test(n))s+=30;
+if(/google/i.test(n))s+=25;
+if(!v.localService)s+=5;
+if(/compact|espeak|e-speak/i.test(n))s-=40;
+s+={"es-CO":8,"es-MX":7,"es-US":6,"es-419":5,"es-ES":3}[l]||0;
+return s;
+}
+function chunks(t){return t.match(/[^.;:!?¡]+[.;:!?]*/g)||[t];}
+var voiceOk=!!synth,heard=false,lastErr="",boundaryOK=false,cps=14;
+function prep(elId){
+var el=elId&&document.getElementById(elId);if(!el)return null;
+var ws=[].slice.call(el.querySelectorAll(".w"));
+ws.forEach(function(w){w.className="w";});
+el.classList.add("kara");
+return {el:el,ws:ws,cur:-1};
+}
+function hl(k,off){
+if(!k)return;
+for(var i=0;i<k.ws.length;i++){
+var w=k.ws[i],s=+w.dataset.s,e=s+w.textContent.length;
+var c=e<=off?"w past":(s<=off?"w now":"w");
+if(w.className!==c)w.className=c;
+}
+}
+function finishK(k){if(!k)return;k.el.classList.remove("kara");k.ws.forEach(function(w){w.className="w";});}
+function speak(text,id,k){
+return new Promise(function(res){
+if(!synth){res(false);return;}
+var parts=[],re=/[^.;:!?¡¿]+[.;:!?]*|[¡¿]+[^.;:!?]*[.;:!?]*/g,m;
+while((m=re.exec(text))){if(m[0].trim())parts.push({t:m[0],o:m.index});}
+if(!parts.length)parts.push({t:text,o:0});
+var i=0,voice=voices.find(function(v){return v.voiceURI===S.voice;})||voices[0];
+(function next(){
+if(id!==runId||i>=parts.length){res(true);return;}
+var part=parts[i++],chunk=part.t,off=part.o,done=false,t,iv,t0=0;
+var u=new SpeechSynthesisUtterance(chunk);
+u.lang=voice?voice.lang:"es-ES";if(voice)u.voice=voice;u.rate=S.rate;
+function clean(){clearTimeout(t);clearInterval(iv);}
+function fin(ok){
+if(done)return;done=true;clean();
+if(ok&&t0){var el=(Date.now()-t0)/1000;if(el>0.4){var meas=chunk.length/el/S.rate;cps=Math.max(8,Math.min(24,cps*0.6+meas*0.4));}}
+if(ok)hl(k,off+chunk.length);
+if(ok)next();else res(false);
+}
+u.onstart=function(){
+heard=true;t0=Date.now();
+if(!boundaryOK)iv=setInterval(function(){
+if(boundaryOK){clearInterval(iv);return;}
+hl(k,off+Math.min(chunk.length-1,(Date.now()-t0)/1000*cps*S.rate));
+},90);
+};
+u.onboundary=function(e){
+if(e.name&&e.name!=="word")return;
+boundaryOK=true;clearInterval(iv);hl(k,off+e.charIndex);
+};
+u.onend=function(){fin(true);};
+u.onerror=function(e){var c=e&&e.error;if(c==="interrupted"||c==="canceled"){done=true;clean();res(true);return;}lastErr=c||"error";fin(false);};
+// Algunos navegadores nunca avisan que terminaron: seguimos de todas formas.
+t=setTimeout(function(){fin(heard);},3000+chunk.length*110/S.rate);
+try{synth.speak(u);if(synth.paused)synth.resume();}catch(e){lastErr="error";fin(false);}
+})();
+});
+}
+function readTime(text){return text.split(/\s+/).length*400/S.rate+500;}
+function noVoice(){
+voiceOk=false;
+document.getElementById("note").textContent="Este dispositivo no dejó reproducir la voz"+(lastErr?" ("+lastErr+")":"")+". El Rosario sigue avanzando solo para que reces leyendo. Prueba abriendo el enlace en Chrome o Safari.";
+}
+async function timed(text,id,k,ms){
+var t0=Date.now(),iv=setInterval(function(){hl(k,text.length*Math.min(1,(Date.now()-t0)/ms));},90);
+await wait(ms,id);clearInterval(iv);
+}
+async function say(text,id,elId){
+var k=prep(elId);
+if(voiceOk){
+var ok=await speak(text,id,k);
+if(id!==runId)return;
+if(ok&&heard){finishK(k);return;}
+noVoice();k=prep(elId);
+}
+await timed(text,id,k,readTime(text));
+if(id===runId)finishK(k);
+}
+function wait(ms,id){return new Promise(function(res){setTimeout(res,ms);});}
+async function runStep(id){
+var st=steps[S.cur];
+if(st.k==="fin"){stop();return;}
+var m=M[setKey()];
+if(st.k==="mist"){
+var it=item(st.d);
+await say(ORD[st.d]+" misterio "+m.adj+".",id,null);if(id!==runId)return;
+await say(it.t,id,"mt");if(id!==runId)return;
+await wait(400,id);
+await say(it.frase,id,"mf");if(id!==runId)return;
+await wait(500,id);
+await say(it.refl,id,"mr");if(id!==runId)return;
+await wait(1800,id);
+}else{
+var p=P[st.k];
+if(st.k==="contricion"&&S.intent){await say("Ofrecemos este Rosario:",id,null);if(id!==runId)return;await say(S.intent,id,"mi");if(id!==runId)return;}
+await say(p.g,id,"pg");if(id!==runId)return;
+if(p.r){
+if(S.mode==="coros"){
+var k=prep("pr"),words=p.r.split(/\s+/).length;
+await timed(p.r,id,k,words*430/S.rate+700);
+if(id!==runId)return;finishK(k);
+}else{
+await say(p.r,id,"pr");if(id!==runId)return;
+}
+}
+await wait(600,id);
+}
+if(id!==runId||!playing)return;
+S.cur++;render();runStep(id);
+}
+async function lockScreen(){try{if(navigator.wakeLock&&!wake){wake=await navigator.wakeLock.request("screen");wake.addEventListener("release",function(){wake=null;});}}catch(e){wake=null;}}
+function start(){
+if(S.mode==="silencio")return;
+if(steps[S.cur].k==="fin")go(0);
+playing=true;runId++;
+if(synth&&(synth.speaking||synth.pending))synth.cancel();
+lockScreen();
+setPlayIcon();runStep(runId);
+}
+function stop(){
+playing=false;runId++;if(synth)synth.cancel();
+if(wake){try{wake.release();}catch(e){}wake=null;}
+setPlayIcon();
+}
+function setPlayIcon(){
+playBtn.innerHTML=playing?ICON_PAUSE:ICON_PLAY;
+playBtn.setAttribute("aria-label",playing?"Pausar":"Rezar con voz");
+playBtn.disabled=S.mode==="silencio";
+}
+function go(i){
+S.cur=Math.max(0,Math.min(steps.length-1,i));render();
+if(playing){runId++;if(synth)synth.cancel();runStep(runId);}
+}
+document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible"&&playing)lockScreen();});
+var segSet=document.getElementById("segSet");
+[["auto","Del día"],["gozosos","Gozosos"],["luminosos","Luminosos"],["dolorosos","Dolorosos"],["gloriosos","Gloriosos"]].forEach(function(o){
+var b=document.createElement("button");b.dataset.v=o[0];b.textContent=o[1];segSet.appendChild(b);});
+function syncSeg(){
+segSet.querySelectorAll("button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.v===S.set);});
+document.querySelectorAll("#segMode button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.v===S.mode);});
+}
+segSet.onclick=function(e){var b=e.target.closest("button");if(!b)return;
+var before=setKey();S.set=b.dataset.v;syncSeg();
+if(setKey()!==before){build();render();if(playing){runId++;synth&&synth.cancel();runStep(runId);}}else save();};
+document.getElementById("segMode").onclick=function(e){var b=e.target.closest("button");if(!b)return;
+S.mode=b.dataset.v;syncSeg();if(S.mode==="silencio")stop();setPlayIcon();render();updateNote();};
+document.getElementById("voiceSel").onchange=function(e){S.voice=e.target.value;save();testVoice();};
+function testVoice(){
+if(!synth)return;
+if(playing)stop();
+synth.cancel();
+var v=voices.find(function(x){return x.voiceURI===S.voice;});
+var u=new SpeechSynthesisUtterance("Dios te salve, María, llena eres de gracia, el Señor es contigo.");
+if(v){u.voice=v;u.lang=v.lang;}else u.lang="es-ES";
+u.rate=S.rate;synth.speak(u);
+}
+document.getElementById("btnTest").onclick=testVoice;
+var rate=document.getElementById("rate");rate.value=S.rate;rate.oninput=function(){S.rate=+rate.value;save();};
+var sc=document.getElementById("scale");sc.value=S.scale;
+function applyScale(){document.documentElement.style.setProperty("--scale",S.scale);}
+sc.oninput=function(){S.scale=+sc.value;applyScale();save();};
+var intent=document.getElementById("intent");intent.value=S.intent;
+intent.oninput=function(){S.intent=intent.value.trim();if(steps[S.cur].k==="contricion")render();else save();};
+document.getElementById("btnReset").onclick=function(){stop();go(0);toggleSettings(false);};
+var settings=document.getElementById("settings"),btnSet=document.getElementById("btnSettings");
+function toggleSettings(on){settings.hidden=!on;btnSet.setAttribute("aria-expanded",on);}
+btnSet.onclick=function(){toggleSettings(settings.hidden);};
+document.getElementById("btnPrev").onclick=function(){go(S.cur-1);};
+document.getElementById("btnNext").onclick=function(){go(S.cur+1);};
+playBtn.onclick=function(){playing?stop():start();};
+function updateNote(){
+var n=document.getElementById("note");
+if(!synth||!voiceOk)n.textContent="Este navegador no tiene voz. Toca ▶ y el Rosario avanzará solo para que reces leyendo.";
+else if(S.mode==="silencio")n.textContent="Modo sin voz: avanza con «Siguiente».";
+else n.textContent="Toca ▶ y la voz rezará contigo, avanzando sola cuenta por cuenta.";
+}
+function toast(t){var d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(function(){d.remove();},3200);}
+var now=new Date();
+document.getElementById("today").textContent=DAYS[now.getDay()]+" · "+now.getDate()+" de "+["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"][now.getMonth()];
+applyScale();drawRing();build();syncSeg();render();setPlayIcon();updateNote();
+if(synth){loadVoices();if("onvoiceschanged" in synth)synth.addEventListener("voiceschanged",loadVoices);}
+else document.getElementById("voiceSel").disabled=true;
+if(resumed)toast("Continúas donde quedaste");
+})();
+</script>
+<script>
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});}
+</script>
+</body>
+</html>
