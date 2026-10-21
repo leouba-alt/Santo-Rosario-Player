@@ -134,6 +134,14 @@ input[type=range]{width:100%;accent-color:var(--wax)}
 </div>
 <p class="help">A dos coros: la voz dice la primera parte y deja el espacio para que tú respondas la segunda.</p>
 </div>
+<div class="field" id="fSrc" hidden><span>Origen de la voz</span>
+<div class="seg" id="segSrc"><button data-v="rec">Voz grabada</button><button data-v="tts">Voz automática</button></div>
+<p class="help">La voz automática se usa de respaldo si falta algún audio grabado.</p>
+</div>
+<div class="field" id="fBg" hidden><span>Música de fondo</span>
+<div class="seg" id="segBg"><button data-v="on">Con música</button><button data-v="off">Sin música</button></div>
+<label for="bgvol">Volumen de la música</label><input type="range" id="bgvol" min="0" max="0.6" step="0.02" value="0.25">
+</div>
 <div class="field"><label for="voiceSel">Voz del guía</label>
 <div class="voicerow"><select id="voiceSel"></select><button class="reset" id="btnTest" type="button">Probar</button></div>
 <p class="help">La app escoge sola la voz más natural de tu equipo. Las voces disponibles dependen de cada celular.</p>
@@ -290,7 +298,7 @@ var BYDAY = ["gloriosos","gozosos","dolorosos","gloriosos","luminosos","doloroso
 var DAYS = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
 var ORD = ["Primer","Segundo","Tercer","Cuarto","Quinto"];
 var VIRT = ["por el aumento de la fe","por el aumento de la esperanza","por el aumento de la caridad"];
-var S = {set:"auto",mode:"todo",rate:0.9,voice:"",scale:1,intent:"",cur:0,day:""};
+var S = {set:"auto",mode:"todo",rate:0.9,voice:"",scale:1,intent:"",cur:0,day:"",src:"rec",bg:true,bgvol:0.25};
 function todayKey(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
 try{var saved=JSON.parse(localStorage.getItem("rosario")||"null");if(saved)Object.assign(S,saved);}catch(e){}
 var resumed=false;
@@ -435,6 +443,39 @@ return s;
 }
 function chunks(t){return t.match(/[^.;:!?¡]+[.;:!?]*/g)||[t];}
 var voiceOk=!!synth,heard=false,lastErr="",boundaryOK=false,cps=14;
+var AV="1",AUD="/audio/",hasRec=false,hasBg=false,player=new Audio(),bg=new Audio(),ac=null,gain=null,tok=0;
+// AV: número de versión de los audios. Súbelo (2, 3...) cuando reemplaces un archivo para que todos descarguen el nuevo.
+var SILENT="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+bg.loop=true;bg.preload="none";player.preload="auto";
+function haltAudio(){try{player.pause();}catch(e){}}
+function unlockAudio(){if(!hasRec)return;try{player.src=SILENT;var p=player.play();if(p&&p.catch)p.catch(function(){});}catch(e){}}
+function bgVol(){if(gain)gain.gain.value=S.bgvol;else bg.volume=Math.min(1,S.bgvol);}
+function bgPlay(){
+if(!hasBg||!S.bg)return;
+try{
+if(!ac){var AC=window.AudioContext||window.webkitAudioContext;if(AC){ac=new AC();var src=ac.createMediaElementSource(bg);gain=ac.createGain();src.connect(gain);gain.connect(ac.destination);}}
+if(ac&&ac.state==="suspended")ac.resume();
+}catch(e){ac=null;gain=null;}
+bgVol();
+var p=bg.play();if(p&&p.catch)p.catch(function(){});
+}
+function bgStop(){try{bg.pause();}catch(e){}}
+function playRec(key,text,id,k){
+return new Promise(function(res){
+if(!hasRec||S.src==="tts"){res(false);return;}
+var iv,me=++tok;
+function clean(){clearInterval(iv);}
+player.onerror=function(){clean();res(false);};
+player.onended=function(){clean();hl(k,text.length);res(true);};
+player.src=AUD+key+".mp3?v="+AV;
+var p=player.play();if(p&&p.catch)p.catch(function(){clean();res(false);});
+iv=setInterval(function(){
+if(id!==runId||me!==tok){clean();res(true);return;}
+var d=player.duration;if(d&&isFinite(d))hl(k,text.length*player.currentTime/d);
+},90);
+});
+}
+async function tryRec(text,id,elId,key){var k=prep(elId);var r=await playRec(key,text,id,k);finishK(k);return r;}
 function prep(elId){
 var el=elId&&document.getElementById(elId);if(!el)return null;
 var ws=[].slice.call(el.querySelectorAll(".w"));
@@ -498,7 +539,8 @@ async function timed(text,id,k,ms){
 var t0=Date.now(),iv=setInterval(function(){hl(k,text.length*Math.min(1,(Date.now()-t0)/ms));},90);
 await wait(ms,id);clearInterval(iv);
 }
-async function say(text,id,elId){
+async function say(text,id,elId,key){
+if(key){var rr=await tryRec(text,id,elId,key);if(id!==runId)return;if(rr)return;}
 var k=prep(elId);
 if(voiceOk){
 var ok=await speak(text,id,k);
@@ -516,8 +558,9 @@ if(st.k==="fin"){stop();return;}
 var m=M[setKey()];
 if(st.k==="mist"){
 var it=item(st.d);
-await say(ORD[st.d]+" misterio "+m.adj+".",id,null);if(id!==runId)return;
-await say(it.t,id,"mt");if(id!==runId)return;
+var gotRec=await tryRec(it.t,id,"mt",setKey()+"-"+(st.d+1));if(id!==runId)return;
+if(!gotRec){await say(ORD[st.d]+" misterio "+m.adj+".",id,null);if(id!==runId)return;
+await say(it.t,id,"mt");if(id!==runId)return;}
 await wait(400,id);
 await say(it.frase,id,"mf");if(id!==runId)return;
 await wait(500,id);
@@ -526,14 +569,14 @@ await wait(1800,id);
 }else{
 var p=P[st.k];
 if(st.k==="contricion"&&S.intent){await say("Ofrecemos este Rosario:",id,null);if(id!==runId)return;await say(S.intent,id,"mi");if(id!==runId)return;}
-await say(p.g,id,"pg");if(id!==runId)return;
+await say(p.g,id,"pg",p.r?st.k+"-g":st.k);if(id!==runId)return;
 if(p.r){
 if(S.mode==="coros"){
 var k=prep("pr"),words=p.r.split(/\s+/).length;
 await timed(p.r,id,k,words*430/S.rate+700);
 if(id!==runId)return;finishK(k);
 }else{
-await say(p.r,id,"pr");if(id!==runId)return;
+await say(p.r,id,"pr",st.k+"-r");if(id!==runId)return;
 }
 }
 await wait(600,id);
@@ -547,11 +590,11 @@ if(S.mode==="silencio")return;
 if(steps[S.cur].k==="fin")go(0);
 playing=true;runId++;
 if(synth&&(synth.speaking||synth.pending))synth.cancel();
-lockScreen();
+lockScreen();unlockAudio();bgPlay();
 setPlayIcon();runStep(runId);
 }
 function stop(){
-playing=false;runId++;if(synth)synth.cancel();
+playing=false;runId++;if(synth)synth.cancel();haltAudio();bgStop();
 if(wake){try{wake.release();}catch(e){}wake=null;}
 setPlayIcon();
 }
@@ -562,7 +605,7 @@ playBtn.disabled=S.mode==="silencio";
 }
 function go(i){
 S.cur=Math.max(0,Math.min(steps.length-1,i));render();
-if(playing){runId++;if(synth)synth.cancel();runStep(runId);}
+if(playing){runId++;if(synth)synth.cancel();haltAudio();runStep(runId);}
 }
 document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible"&&playing)lockScreen();});
 var segSet=document.getElementById("segSet");
@@ -574,7 +617,7 @@ document.querySelectorAll("#segMode button").forEach(function(b){b.setAttribute(
 }
 segSet.onclick=function(e){var b=e.target.closest("button");if(!b)return;
 var before=setKey();S.set=b.dataset.v;syncSeg();
-if(setKey()!==before){build();render();if(playing){runId++;synth&&synth.cancel();runStep(runId);}}else save();};
+if(setKey()!==before){build();render();if(playing){runId++;synth&&synth.cancel();haltAudio();runStep(runId);}}else save();};
 document.getElementById("segMode").onclick=function(e){var b=e.target.closest("button");if(!b)return;
 S.mode=b.dataset.v;syncSeg();if(S.mode==="silencio")stop();setPlayIcon();render();updateNote();};
 document.getElementById("voiceSel").onchange=function(e){S.voice=e.target.value;save();testVoice();};
@@ -603,11 +646,26 @@ document.getElementById("btnNext").onclick=function(){go(S.cur+1);};
 playBtn.onclick=function(){playing?stop():start();};
 function updateNote(){
 var n=document.getElementById("note");
-if(!synth||!voiceOk)n.textContent="Este navegador no tiene voz. Toca ▶ y el Rosario avanzará solo para que reces leyendo.";
+if((!synth||!voiceOk)&&!hasRec)n.textContent="Este navegador no tiene voz. Toca ▶ y el Rosario avanzará solo para que reces leyendo.";
 else if(S.mode==="silencio")n.textContent="Modo sin voz: avanza con «Siguiente».";
+else if(hasRec&&S.src==="rec")n.textContent="Toca ▶ y se rezará con la voz grabada, avanzando sola cuenta por cuenta.";
 else n.textContent="Toca ▶ y la voz rezará contigo, avanzando sola cuenta por cuenta.";
 }
 function toast(t){var d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(function(){d.remove();},3200);}
+var fSrc=document.getElementById("fSrc"),fBg=document.getElementById("fBg"),segSrc=document.getElementById("segSrc"),segBg=document.getElementById("segBg"),bgvol=document.getElementById("bgvol");
+bgvol.value=S.bgvol;
+function syncAudioUI(){
+fSrc.hidden=!hasRec;fBg.hidden=!hasBg;
+segSrc.querySelectorAll("button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.v===S.src);});
+segBg.querySelectorAll("button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.v===(S.bg?"on":"off"));});
+updateNote();
+}
+segSrc.onclick=function(e){var b=e.target.closest("button");if(!b)return;S.src=b.dataset.v;save();syncAudioUI();};
+segBg.onclick=function(e){var b=e.target.closest("button");if(!b)return;S.bg=b.dataset.v==="on";save();syncAudioUI();if(playing){if(S.bg)bgPlay();else bgStop();}};
+bgvol.oninput=function(){S.bgvol=+bgvol.value;save();bgVol();};
+function probe(u,cb){try{fetch(u,{method:"HEAD"}).then(function(r){cb(r.ok&&/audio/i.test(r.headers.get("content-type")||""));}).catch(function(){cb(false);});}catch(e){cb(false);}}
+probe(AUD+"ave-g.mp3?v="+AV,function(ok){hasRec=ok;syncAudioUI();});
+probe(AUD+"fondo.mp3?v="+AV,function(ok){hasBg=ok;if(ok)bg.src=AUD+"fondo.mp3?v="+AV;syncAudioUI();});
 var now=new Date();
 document.getElementById("today").textContent=DAYS[now.getDay()]+" · "+now.getDate()+" de "+["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"][now.getMonth()];
 applyScale();drawRing();build();syncSeg();render();setPlayIcon();updateNote();
