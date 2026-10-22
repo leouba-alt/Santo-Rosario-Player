@@ -378,6 +378,14 @@ else{centerNum.textContent="";centerSub.textContent=cur.sec;}
 var card=document.getElementById("card");
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
 function wrap(t){return String(t).replace(/[^\s]+|\s+/g,function(w,off){return /\s/.test(w[0])?w:'<span class="w" data-s="'+off+'">'+esc(w)+'</span>';});}
+var daily=(function(){
+var pool=[],k,i,j;
+for(k in M)for(i=0;i<M[k].items.length;i++)for(j=0;j<M[k].items[i][1].length;j++){var v=M[k].items[i][1][j];pool.push({cita:v[0],frase:v[1],refl:v[2]});}
+var last=-1,n;try{last=+localStorage.getItem("rosario_pd");}catch(e){}
+n=Math.floor(Math.random()*pool.length);if(n===last&&pool.length>1)n=(n+1)%pool.length;
+try{localStorage.setItem("rosario_pd",n);}catch(e){}
+return pool[n];
+})();
 function render(){
 var st=steps[S.cur],m=M[setKey()],h="";
 document.getElementById("setName").textContent=m.n;
@@ -395,14 +403,12 @@ h+='<div class="where"><span>'+esc(st.sec)+'</span>'+count+'</div>';
 if(st.k==="mist"){
 var it=item(st.d);
 h+='<h2 class="pname" id="mt">'+wrap(it.t)+'</h2>';
-h+='<div class="mystery"><span class="cita">'+esc(it.cita)+'</span><p class="frase">«<span id="mf">'+wrap(it.frase)+'</span>»</p>'+
-'<span class="lbl">Reflexión de hoy</span><p class="refl" id="mr">'+wrap(it.refl)+'</p></div>';
 }else{
 var p=P[st.k];
+if(S.cur===0)h+='<div class="mystery daily"><span class="lbl">Palabra de hoy</span><span class="cita">'+esc(daily.cita)+'</span><p class="frase">«'+esc(daily.frase)+'»</p><span class="lbl">Reflexión</span><p class="refl">'+esc(daily.refl)+'</p></div>';
 if(st.d!=null){
 var iq=item(st.d);
-h+='<div class="mystery compact"><b>'+esc(iq.t)+'</b><span class="cita">'+esc(iq.cita)+'</span>'+
-'<p class="frase">«'+esc(iq.frase)+'»</p><p class="refl">'+esc(iq.refl)+'</p></div>';
+h+='<div class="mystery compact"><b>'+esc(iq.t)+'</b></div>';
 }
 h+='<h2 class="pname">'+esc(p.n)+(st.virt?' <span class="help">'+esc(st.virt)+'</span>':'')+'</h2>';
 if(st.k==="contricion"&&S.intent)h+='<p class="intent">Ofrezco este Rosario: <span id="mi">'+wrap(S.intent)+'</span></p>';
@@ -595,11 +601,7 @@ var it=item(st.d);
 var gotRec=await tryRec(it.t,id,"mt",setKey()+"-"+(st.d+1));if(id!==runId)return;
 if(!gotRec){await say(ORD[st.d]+" misterio "+m.adj+".",id,null);if(id!==runId)return;
 await say(it.t,id,"mt");if(id!==runId)return;}
-await wait(400,id);
-await say(it.frase,id,"mf");if(id!==runId)return;
-await wait(500,id);
-await say(it.refl,id,"mr");if(id!==runId)return;
-await wait(1800,id);
+await wait(1500,id);
 }else{
 var p=P[st.k];
 if(st.k==="contricion"&&S.intent){await say("Ofrecemos este Rosario:",id,null);if(id!==runId)return;await say(S.intent,id,"mi");if(id!==runId)return;}
