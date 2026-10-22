@@ -136,17 +136,16 @@ input[type=range]{width:100%;accent-color:var(--wax)}
 </div>
 <div class="field" id="fSrc" hidden><span>Origen de la voz</span>
 <div class="seg" id="segSrc"></div>
-<p class="help">La voz automática se usa de respaldo si falta algún audio grabado.</p>
 </div>
 <div class="field" id="fBg" hidden><span>Música de fondo</span>
 <div class="seg" id="segBg"><button data-v="on">Con música</button><button data-v="off">Sin música</button></div>
 <label for="bgvol">Volumen de la música</label><input type="range" id="bgvol" min="0" max="0.6" step="0.02" value="0.25">
 </div>
-<div class="field"><label for="voiceSel">Voz del guía</label>
+<div class="field" hidden><label for="voiceSel">Voz del guía</label>
 <div class="voicerow"><select id="voiceSel"></select><button class="reset" id="btnTest" type="button">Probar</button></div>
 <p class="help">La app escoge sola la voz más natural de tu equipo. Las voces disponibles dependen de cada celular.</p>
 </div>
-<div class="field"><label for="rate">Velocidad de la voz</label><input type="range" id="rate" min="0.6" max="1.3" step="0.05" value="0.9"></div>
+<div class="field" hidden><label for="rate">Velocidad de la voz</label><input type="range" id="rate" min="0.6" max="1.3" step="0.05" value="0.9"></div>
 <div class="field"><label for="scale">Tamaño de la letra</label><input type="range" id="scale" min="0.9" max="1.6" step="0.05" value="1"></div>
 <div class="field"><label for="intent">Mi intención (opcional)</label><input type="text" id="intent" placeholder="Por la salud de mi mamá…" maxlength="140"></div>
 <button class="reset" id="btnReset">Empezar el Rosario desde el inicio</button>
@@ -449,7 +448,6 @@ VOICES=[{id:"adriana",n:"Adriana",dir:"/audio/adriana/"},{id:"leonardo",n:"Leona
 var SILENT="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
 bg.loop=true;bg.preload="none";player.preload="auto";
 function curVoice(){
-if(S.src==="tts")return null;
 var v=VOICES.filter(function(x){return x.id===S.src&&avail[x.id];})[0];
 return v||VOICES.filter(function(x){return avail[x.id];})[0]||null;
 }
@@ -666,8 +664,8 @@ var av=VOICES.filter(function(x){return avail[x.id];});
 fSrc.hidden=!av.length;fBg.hidden=!hasBg;
 segSrc.innerHTML="";
 av.forEach(function(x){var b=document.createElement("button");b.dataset.v=x.id;b.textContent=x.n;segSrc.appendChild(b);});
-var t=document.createElement("button");t.dataset.v="tts";t.textContent="Voz automática";segSrc.appendChild(t);
-segSrc.querySelectorAll("button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.v===(S.src==="tts"?"tts":(curVoice()?curVoice().id:"")));});
+
+segSrc.querySelectorAll("button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.v===(curVoice()?curVoice().id:""));});
 segBg.querySelectorAll("button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.v===(S.bg?"on":"off"));});
 updateNote();
 }
