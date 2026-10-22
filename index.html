@@ -478,15 +478,21 @@ function bgStop(){try{bg.pause();}catch(e){}}
 function playRec(key,text,id,k){
 return new Promise(function(res){
 var cv=curVoice();if(!cv){res(false);return;}
-var iv,me=++tok;
-function clean(){clearInterval(iv);}
-player.onerror=function(){clean();res(false);};
-player.onended=function(){clean();hl(k,text.length);res(true);};
+var iv,wd,me=++tok,done=false,started=false,last=-1,lastT=Date.now();
+function clean(){clearInterval(iv);clearTimeout(wd);}
+function end(ok){if(done)return;done=true;clean();if(!ok){try{player.pause();}catch(e){}}res(ok);}
+player.onerror=function(){end(false);};
+player.onplaying=function(){started=true;lastT=Date.now();};
+player.onended=function(){hl(k,text.length);end(true);};
+// Si el audio no empieza en 7 segundos (archivo ausente o conexión lenta), usa la voz del teléfono.
+wd=setTimeout(function(){if(!started)end(false);},7000);
 player.src=cv.dir+key+".mp3?v="+AV;
-var p=player.play();if(p&&p.catch)p.catch(function(){clean();res(false);});
+var p=player.play();if(p&&p.catch)p.catch(function(){end(false);});
 iv=setInterval(function(){
-if(id!==runId||me!==tok){clean();res(true);return;}
-var d=player.duration;if(d&&isFinite(d))hl(k,text.length*player.currentTime/d);
+if(id!==runId||me!==tok){end(true);return;}
+var t=player.currentTime;
+if(started){if(t!==last){last=t;lastT=Date.now();}else if(Date.now()-lastT>8000){end(false);return;}}
+var d=player.duration;if(d&&isFinite(d))hl(k,text.length*t/d);
 },90);
 });
 }
