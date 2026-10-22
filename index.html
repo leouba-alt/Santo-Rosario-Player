@@ -23,7 +23,7 @@
 --f-display:"Marcellus","Trajan Pro",Georgia,serif;
 --f-text:"Literata",Georgia,"Times New Roman",serif;
 --f-ui:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
---scale:1;
+--scale:0.9;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
 --bg:#0D1222; --surface:#161D34; --ink:#ECE6D8; --muted:#9AA2BE;
@@ -156,7 +156,7 @@ input[type=range]{width:100%;accent-color:var(--wax)}
 <p class="help">La app escoge sola la voz más natural de tu equipo. Las voces disponibles dependen de cada celular.</p>
 </div>
 <div class="field"><label for="rate">Velocidad: <b id="rateV">1.0×</b></label><input type="range" id="rate" min="0.7" max="1.4" step="0.05" value="1"><p class="help">Ajusta la velocidad de la voz y del resaltado de la lectura.</p></div>
-<div class="field"><label for="scale">Tamaño de la letra</label><input type="range" id="scale" min="0.9" max="1.6" step="0.05" value="1"></div>
+<div class="field"><label for="scale">Tamaño de la letra</label><input type="range" id="scale" min="0.9" max="1.6" step="0.05" value="0.9"></div>
 <div class="field"><label for="intent">Mi intención (opcional)</label><input type="text" id="intent" placeholder="Por la salud de mi mamá…" maxlength="140"></div>
 <button class="reset" id="btnReset">Empezar el Rosario desde el inicio</button>
 </section>
@@ -314,9 +314,9 @@ var BYDAY = ["gloriosos","gozosos","dolorosos","gloriosos","luminosos","doloroso
 var DAYS = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
 var ORD = ["Primer","Segundo","Tercer","Cuarto","Quinto"];
 var VIRT = ["por el aumento de la fe","por el aumento de la esperanza","por el aumento de la caridad"];
-var S = {set:"auto",mode:"todo",rate:0.9,speed:1,voice:"",scale:1,intent:"",cur:0,day:"",src:"adriana",bg:true,bgvol:0.25};
+var S = {set:"auto",mode:"todo",rate:0.9,speed:1,voice:"",scale:0.9,scaleV:2,intent:"",cur:0,day:"",src:"adriana",bg:true,bgvol:0.25};
 function todayKey(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
-try{var saved=JSON.parse(localStorage.getItem("rosario")||"null");if(saved)Object.assign(S,saved);}catch(e){}
+try{var saved=JSON.parse(localStorage.getItem("rosario")||"null");if(saved){if(saved.scaleV!==2){saved.scale=0.9;saved.scaleV=2;}Object.assign(S,saved);}}catch(e){}
 var resumed=false;
 if(S.day!==todayKey()){S.cur=0;S.day=todayKey();}else if(S.cur>0){resumed=true;}
 function save(){try{localStorage.setItem("rosario",JSON.stringify(S));}catch(e){}}
