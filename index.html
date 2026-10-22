@@ -136,7 +136,7 @@ input[type=range]{width:100%;accent-color:var(--wax)}
 <button data-v="coros">Rezamos a dos coros</button>
 <button data-v="silencio">Sin voz</button>
 </div>
-<p class="help">A dos coros: la voz dice la primera parte y deja el espacio para que tú respondas la segunda.</p>
+<p class="help">A dos coros se alternan: en el primer misterio la voz dice la primera parte y tú respondes la segunda; en el segundo se invierte, y así hasta el quinto.</p>
 </div>
 <div class="field" id="fSrc" hidden><span>Origen de la voz</span>
 <div class="seg" id="segSrc"></div>
@@ -149,7 +149,7 @@ input[type=range]{width:100%;accent-color:var(--wax)}
 <div class="voicerow"><select id="voiceSel"></select><button class="reset" id="btnTest" type="button">Probar</button></div>
 <p class="help">La app escoge sola la voz más natural de tu equipo. Las voces disponibles dependen de cada celular.</p>
 </div>
-<div class="field" hidden><label for="rate">Velocidad de la voz</label><input type="range" id="rate" min="0.6" max="1.3" step="0.05" value="0.9"></div>
+<div class="field"><label for="rate">Velocidad: <b id="rateV">1.0×</b></label><input type="range" id="rate" min="0.7" max="1.4" step="0.05" value="1"><p class="help">Ajusta la velocidad de la voz y del resaltado de la lectura.</p></div>
 <div class="field"><label for="scale">Tamaño de la letra</label><input type="range" id="scale" min="0.9" max="1.6" step="0.05" value="1"></div>
 <div class="field"><label for="intent">Mi intención (opcional)</label><input type="text" id="intent" placeholder="Por la salud de mi mamá…" maxlength="140"></div>
 <button class="reset" id="btnReset">Empezar el Rosario desde el inicio</button>
@@ -183,7 +183,7 @@ padre:{n:"Padre Nuestro",g:"Padre nuestro, que estás en el cielo, santificado s
 ave:{n:"Avemaría",g:"Dios te salve, María, llena eres de gracia, el Señor es contigo. Bendita tú eres entre todas las mujeres, y bendito es el fruto de tu vientre, Jesús.",r:"Santa María, Madre de Dios, ruega por nosotros, pecadores, ahora y en la hora de nuestra muerte. Amén."},
 gloria:{n:"Gloria",g:"Gloria al Padre, y al Hijo, y al Espíritu Santo.",r:"Como era en el principio, ahora y siempre, por los siglos de los siglos. Amén."},
 fatima:{n:"Oh Jesús mío",g:"Oh Jesús mío, perdona nuestros pecados, líbranos del fuego del infierno, lleva al cielo a todas las almas, especialmente a las más necesitadas de tu misericordia."},
-salve:{n:"Salve",g:"Dios te salve, Reina y Madre de misericordia, vida, dulzura y esperanza nuestra; Dios te salve. A ti llamamos los desterrados hijos de Eva; a ti suspiramos, gimiendo y llorando, en este valle de lágrimas. Ea, pues, Señora, abogada nuestra, vuelve a nosotros esos tus ojos misericordiosos; y después de este destierro muéstranos a Jesús, fruto bendito de tu vientre. ¡Oh clementísima, oh piadosa, oh dulce Virgen María!",r:"Ruega por nosotros, Santa Madre de Dios, para que seamos dignos de alcanzar las promesas de nuestro Señor Jesucristo. Amén."},
+salve:{n:"Salve",g:"Dios te salve, Reina y Madre de misericordia, vida, dulzura y esperanza nuestra; Dios te salve. A ti llamamos los desterrados hijos de Eva; a ti suspiramos, gimiendo y llorando, en este valle de lágrimas. Ea, pues, Señora, abogada nuestra, vuelve a nosotros esos tus ojos misericordiosos; y después de este destierro muéstranos a Jesús, fruto bendito de tu vientre. ¡Oh clementísima, oh piadosa, oh dulce Virgen María! Ruega por nosotros, Santa Madre de Dios, para que seamos dignos de alcanzar las promesas de nuestro Señor Jesucristo. Amén."},
 final:{n:"Señal de la Cruz",g:"En el nombre del Padre, y del Hijo, y del Espíritu Santo. Amén."}
 };
 var M = {
@@ -307,7 +307,7 @@ var BYDAY = ["gloriosos","gozosos","dolorosos","gloriosos","luminosos","doloroso
 var DAYS = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
 var ORD = ["Primer","Segundo","Tercer","Cuarto","Quinto"];
 var VIRT = ["por el aumento de la fe","por el aumento de la esperanza","por el aumento de la caridad"];
-var S = {set:"auto",mode:"todo",rate:0.9,voice:"",scale:1,intent:"",cur:0,day:"",src:"adriana",bg:true,bgvol:0.25};
+var S = {set:"auto",mode:"todo",rate:0.9,speed:1,voice:"",scale:1,intent:"",cur:0,day:"",src:"adriana",bg:true,bgvol:0.25};
 function todayKey(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
 try{var saved=JSON.parse(localStorage.getItem("rosario")||"null");if(saved)Object.assign(S,saved);}catch(e){}
 var resumed=false;
@@ -315,6 +315,8 @@ if(S.day!==todayKey()){S.cur=0;S.day=todayKey();}else if(S.cur>0){resumed=true;}
 function save(){try{localStorage.setItem("rosario",JSON.stringify(S));}catch(e){}}
 function setKey(){return S.set==="auto"?BYDAY[new Date().getDay()]:S.set;}
 var steps=[];
+// A dos coros: en los misterios 1, 3 y 5 la voz dice la primera parte; en el 2 y el 4 empieza el usuario.
+function userFirst(st){return S.mode==="coros"&&st.d!=null&&st.d%2===1;}
 function build(){
 var k=setKey(),m=M[k];steps=[];
 steps.push({k:"senal",bead:"cross",sec:"Inicio"});
@@ -404,9 +406,9 @@ h+='<div class="mystery compact"><b>'+esc(iq.t)+'</b><span class="cita">'+esc(iq
 }
 h+='<h2 class="pname">'+esc(p.n)+(st.virt?' <span class="help">'+esc(st.virt)+'</span>':'')+'</h2>';
 if(st.k==="contricion"&&S.intent)h+='<p class="intent">Ofrezco este Rosario: <span id="mi">'+wrap(S.intent)+'</span></p>';
-var co=S.mode==="coros";
-h+='<div class="text"><p id="pg">'+(p.r?'<span class="who">'+(co?'Guía':'Primera parte')+'</span>':'')+wrap(p.g)+'</p>';
-if(p.r)h+='<p id="pr"'+(co?' class="yours"':'')+'><span class="who">'+(co?'Tú respondes':'Segunda parte')+'</span>'+wrap(p.r)+'</p>';
+var co=S.mode==="coros",uf=userFirst(st);
+h+='<div class="text"><p id="pg"'+(co&&p.r&&uf?' class="yours"':'')+'>'+(p.r?'<span class="who">'+(co?(uf?'Tú dices':'Guía'):'Primera parte')+'</span>':'')+wrap(p.g)+'</p>';
+if(p.r)h+='<p id="pr"'+(co&&!uf?' class="yours"':'')+'><span class="who">'+(co?(uf?'Guía':'Tú respondes'):'Segunda parte')+'</span>'+wrap(p.r)+'</p>';
 h+='</div>';
 }
 card.innerHTML=h;
@@ -462,6 +464,17 @@ var v=VOICES.filter(function(x){return x.id===S.src&&avail[x.id];})[0];
 return v||VOICES.filter(function(x){return avail[x.id];})[0]||null;
 }
 function hasRec(){return !!curVoice();}
+var durCache={};
+function recDur(key){
+var cv=curVoice();if(!cv)return Promise.resolve(0);
+var u=cv.dir+key+".mp3?v="+AV;
+if(durCache[u]!==undefined)return Promise.resolve(durCache[u]);
+return new Promise(function(res){
+var a=new Audio(),t=setTimeout(function(){fin(0);},2500);
+function fin(v){clearTimeout(t);durCache[u]=v;a.onloadedmetadata=a.onerror=null;res(v);}
+a.preload="metadata";a.onloadedmetadata=function(){fin(isFinite(a.duration)?a.duration*1000:0);};a.onerror=function(){fin(0);};a.src=u;
+});
+}
 function haltAudio(){try{player.pause();}catch(e){}}
 function unlockAudio(){if(!hasRec())return;try{player.src=SILENT;var p=player.play();if(p&&p.catch)p.catch(function(){});}catch(e){}}
 function bgVol(){if(gain)gain.gain.value=S.bgvol;else bg.volume=Math.min(1,S.bgvol);}
@@ -486,7 +499,7 @@ player.onplaying=function(){started=true;lastT=Date.now();};
 player.onended=function(){hl(k,text.length);end(true);};
 // Si el audio no empieza en 7 segundos (archivo ausente o conexión lenta), usa la voz del teléfono.
 wd=setTimeout(function(){if(!started)end(false);},7000);
-player.src=cv.dir+key+".mp3?v="+AV;
+player.src=cv.dir+key+".mp3?v="+AV;try{player.defaultPlaybackRate=S.speed;player.playbackRate=S.speed;}catch(e){}
 var p=player.play();if(p&&p.catch)p.catch(function(){end(false);});
 iv=setInterval(function(){
 if(id!==runId||me!==tok){end(true);return;}
@@ -590,14 +603,22 @@ await wait(1800,id);
 }else{
 var p=P[st.k];
 if(st.k==="contricion"&&S.intent){await say("Ofrecemos este Rosario:",id,null);if(id!==runId)return;await say(S.intent,id,"mi");if(id!==runId)return;}
+async function turnoUsuario(texto,elId,key){
+var k=prep(elId),words=texto.split(/\s+/).length,ms=await recDur(key);
+if(id!==runId)return;
+if(ms)ms=ms/S.speed;else ms=words*430/S.rate+700;
+await timed(texto,id,k,ms+300);
+if(id!==runId)return;finishK(k);
+}
+var co=S.mode==="coros";
+if(p.r&&co&&userFirst(st)){
+await turnoUsuario(p.g,"pg",st.k+"-g");if(id!==runId)return;
+await say(p.r,id,"pr",st.k+"-r");if(id!==runId)return;
+}else{
 await say(p.g,id,"pg",p.r?st.k+"-g":st.k);if(id!==runId)return;
 if(p.r){
-if(S.mode==="coros"){
-var k=prep("pr"),words=p.r.split(/\s+/).length;
-await timed(p.r,id,k,words*430/S.rate+700);
-if(id!==runId)return;finishK(k);
-}else{
-await say(p.r,id,"pr",st.k+"-r");if(id!==runId)return;
+if(co){await turnoUsuario(p.r,"pr",st.k+"-r");if(id!==runId)return;}
+else{await say(p.r,id,"pr",st.k+"-r");if(id!==runId)return;}
 }
 }
 await wait(600,id);
@@ -652,7 +673,9 @@ if(v){u.voice=v;u.lang=v.lang;}else u.lang="es-ES";
 u.rate=S.rate;synth.speak(u);
 }
 document.getElementById("btnTest").onclick=testVoice;
-var rate=document.getElementById("rate");rate.value=S.rate;rate.oninput=function(){S.rate=+rate.value;save();};
+var rate=document.getElementById("rate"),rateV=document.getElementById("rateV");
+function applySpeed(){S.speed=Math.max(0.7,Math.min(1.4,+S.speed||1));S.rate=0.9*S.speed;rate.value=S.speed;rateV.textContent=S.speed.toFixed(2).replace(/0$/,"")+"×";try{player.defaultPlaybackRate=S.speed;player.playbackRate=S.speed;}catch(e){}}
+applySpeed();rate.oninput=function(){S.speed=+rate.value;applySpeed();save();};
 var sc=document.getElementById("scale");sc.value=S.scale;
 function applyScale(){document.documentElement.style.setProperty("--scale",S.scale);}
 sc.oninput=function(){S.scale=+sc.value;applyScale();save();};
