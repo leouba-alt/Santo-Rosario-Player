@@ -173,9 +173,9 @@ input[type=range]{width:100%;accent-color:var(--wax)}
 </section>
 <div class="beads"><svg id="ring" viewBox="0 0 300 360" role="img" aria-label="Cuentas del Rosario"></svg></div>
 <div class="progress" aria-hidden="true"><i id="bar"></i></div>
-<a class="shop" id="shopHome" hidden target="_blank" rel="noopener"></a>
 <aside class="daily" id="daily" hidden aria-label="Palabra de hoy"></aside>
 <article class="card" id="card" aria-live="polite"></article>
+<a class="shop" id="shopHome" hidden target="_blank" rel="noopener"></a>
 <p class="note" id="note"></p>
 </div>
 <div class="dock">
@@ -392,7 +392,7 @@ var card=document.getElementById("card");
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
 function wrap(t){return String(t).replace(/[^\s]+|\s+/g,function(w,off){return /\s/.test(w[0])?w:'<span class="w" data-s="'+off+'">'+esc(w)+'</span>';});}
 // Pega aquí la dirección de tu sitio web (ej. "https://tusitio.com"). Si queda vacía, los enlaces no se muestran.
-var SITE_URL="https://www.tiendatyv.com";
+var SITE_URL="";
 var SHOP_HTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.5-9 9-9 9z"/></svg><span><b>Conoce nuestra artesanía religiosa</b><small>Visita nuestro sitio web</small></span><span class="go">›</span>';
 function shopLink(el){if(!el)return;if(!SITE_URL){el.hidden=true;return;}el.href=SITE_URL;el.innerHTML=SHOP_HTML;el.hidden=false;}
 var daily=(function(){
@@ -408,7 +408,7 @@ var st=steps[S.cur],m=M[setKey()],h="";
 document.getElementById("setName").textContent=m.n;
 document.getElementById("bar").style.width=(S.cur/(steps.length-1)*100)+"%";
 card.classList.toggle("done-card",st.k==="fin");
-shopLink(document.getElementById("shopHome"));document.getElementById("shopHome").hidden=!SITE_URL||S.cur!==0;
+shopLink(document.getElementById("shopHome"));document.getElementById("shopHome").hidden=!SITE_URL||st.k==="fin";
 var dEl=document.getElementById("daily");dEl.hidden=S.cur!==0;
 if(S.cur===0)dEl.innerHTML='<span class="lbl">Palabra de hoy</span><span class="cita">'+esc(daily.cita)+'</span><p class="frase">«'+esc(daily.frase)+'»</p><p class="refl">'+esc(daily.refl)+'</p>';
 if(st.k==="fin"){
