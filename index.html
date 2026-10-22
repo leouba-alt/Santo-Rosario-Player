@@ -392,7 +392,7 @@ var card=document.getElementById("card");
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
 function wrap(t){return String(t).replace(/[^\s]+|\s+/g,function(w,off){return /\s/.test(w[0])?w:'<span class="w" data-s="'+off+'">'+esc(w)+'</span>';});}
 // Pega aquí la dirección de tu sitio web (ej. "https://tusitio.com"). Si queda vacía, los enlaces no se muestran.
-var SITE_URL="";
+var SITE_URL="https://www.tiendatyv.com";
 var SHOP_HTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.5-9 9-9 9z"/></svg><span><b>Conoce nuestra artesanía religiosa</b><small>Visita nuestro sitio web</small></span><span class="go">›</span>';
 function shopLink(el){if(!el)return;if(!SITE_URL){el.hidden=true;return;}el.href=SITE_URL;el.innerHTML=SHOP_HTML;el.hidden=false;}
 var daily=(function(){
