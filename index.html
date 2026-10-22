@@ -80,6 +80,8 @@ h1 em{font-style:normal;color:var(--wax)}
 .shop{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
 .shop svg{flex:none;width:22px;height:22px;color:var(--wax)}
 .shop b{display:block;font-size:14px}.shop small{display:block;color:var(--muted);font-size:12px}
+.shop.invite{border-color:var(--lapis);width:100%;text-align:left;font:inherit;cursor:pointer}
+.shop.invite svg{color:var(--lapis)}
 .shop .go{margin-left:auto;color:var(--lapis)}
 .mystery.compact{border-top:none;padding:12px 14px;background:var(--bg);border-radius:12px;gap:2px}
 .mystery.compact b{font-family:var(--f-display);font-weight:400;font-size:16px}
@@ -175,6 +177,7 @@ input[type=range]{width:100%;accent-color:var(--wax)}
 <div class="progress" aria-hidden="true"><i id="bar"></i></div>
 <aside class="daily" id="daily" hidden aria-label="Palabra de hoy"></aside>
 <article class="card" id="card" aria-live="polite"></article>
+<button class="shop invite" id="inviteBtn" type="button"></button>
 <a class="shop" id="shopHome" hidden target="_blank" rel="noopener"></a>
 <p class="note" id="note"></p>
 </div>
@@ -394,6 +397,12 @@ function wrap(t){return String(t).replace(/[^\s]+|\s+/g,function(w,off){return /
 // Pega aquí la dirección de tu sitio web (ej. "https://tusitio.com"). Si queda vacía, los enlaces no se muestran.
 var SITE_URL="https://www.tiendatyv.com";
 var SHOP_HTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.5-9 9-9 9z"/></svg><span><b>Conoce nuestra artesanía religiosa</b><small>Visita nuestro sitio web</small></span><span class="go">›</span>';
+var INVITE_HTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M18 8v6M15 11h6"/></svg><span><b>Invita a alguien a rezar contigo</b><small>Compárteles el enlace por WhatsApp u otra app</small></span><span class="go">›</span>';
+function invite(){
+var url=location.origin+location.pathname,txt="Te invito a rezar juntos el Santo Rosario. Ábrelo aquí y recemos al mismo tiempo: "+url;
+if(navigator.share){navigator.share({title:"Santo Rosario",text:"Te invito a rezar juntos el Santo Rosario.",url:url}).catch(function(){});return;}
+window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank","noopener");
+}
 function shopLink(el){if(!el)return;if(!SITE_URL){el.hidden=true;return;}el.href=SITE_URL;el.innerHTML=SHOP_HTML;el.hidden=false;}
 var daily=(function(){
 var pool=[],k,i,j;
@@ -408,15 +417,16 @@ var st=steps[S.cur],m=M[setKey()],h="";
 document.getElementById("setName").textContent=m.n;
 document.getElementById("bar").style.width=(S.cur/(steps.length-1)*100)+"%";
 card.classList.toggle("done-card",st.k==="fin");
+var ib=document.getElementById("inviteBtn");if(!ib.innerHTML){ib.innerHTML=INVITE_HTML;ib.onclick=invite;}ib.hidden=st.k==="fin";
 shopLink(document.getElementById("shopHome"));document.getElementById("shopHome").hidden=!SITE_URL||st.k==="fin";
 var dEl=document.getElementById("daily");dEl.hidden=S.cur!==0;
 if(S.cur===0)dEl.innerHTML='<span class="lbl">Palabra de hoy</span><span class="cita">'+esc(daily.cita)+'</span><p class="frase">«'+esc(daily.frase)+'»</p><p class="refl">'+esc(daily.refl)+'</p>';
 if(st.k==="fin"){
 h='<div class="where"><span>Final</span></div><h2 class="pname">Rosario terminado</h2>'+
 '<p class="help">Que la Virgen María te acompañe hoy.</p>'+
-'<button class="reset" id="again">Rezar otro Rosario</button>'+(SITE_URL?'<a class="shop" target="_blank" rel="noopener" href="'+esc(SITE_URL)+'">'+SHOP_HTML+'</a>':'');
+'<button class="reset" id="again">Rezar otro Rosario</button><button class="shop invite" id="inviteEnd" type="button">'+INVITE_HTML+'</button>'+(SITE_URL?'<a class="shop" target="_blank" rel="noopener" href="'+esc(SITE_URL)+'">'+SHOP_HTML+'</a>':'');
 card.innerHTML=h;
-document.getElementById("again").onclick=function(){go(0);};
+document.getElementById("again").onclick=function(){go(0);};document.getElementById("inviteEnd").onclick=invite;
 }else{
 var count=st.k==="ave"&&st.of?'<b>'+st.n+' de '+st.of+'</b>':'';
 h+='<div class="where"><span>'+esc(st.sec)+'</span>'+count+'</div>';
