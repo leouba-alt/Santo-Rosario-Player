@@ -135,7 +135,7 @@ input[type=range]{width:100%;accent-color:var(--wax)}
 <p class="help">A dos coros: la voz dice la primera parte y deja el espacio para que tú respondas la segunda.</p>
 </div>
 <div class="field" id="fSrc" hidden><span>Origen de la voz</span>
-<div class="seg" id="segSrc"><button data-v="rec">Voz grabada</button><button data-v="tts">Voz automática</button></div>
+<div class="seg" id="segSrc"></div>
 <p class="help">La voz automática se usa de respaldo si falta algún audio grabado.</p>
 </div>
 <div class="field" id="fBg" hidden><span>Música de fondo</span>
@@ -298,7 +298,7 @@ var BYDAY = ["gloriosos","gozosos","dolorosos","gloriosos","luminosos","doloroso
 var DAYS = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
 var ORD = ["Primer","Segundo","Tercer","Cuarto","Quinto"];
 var VIRT = ["por el aumento de la fe","por el aumento de la esperanza","por el aumento de la caridad"];
-var S = {set:"auto",mode:"todo",rate:0.9,voice:"",scale:1,intent:"",cur:0,day:"",src:"rec",bg:true,bgvol:0.25};
+var S = {set:"auto",mode:"todo",rate:0.9,voice:"",scale:1,intent:"",cur:0,day:"",src:"adriana",bg:true,bgvol:0.25};
 function todayKey(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
 try{var saved=JSON.parse(localStorage.getItem("rosario")||"null");if(saved)Object.assign(S,saved);}catch(e){}
 var resumed=false;
@@ -443,12 +443,19 @@ return s;
 }
 function chunks(t){return t.match(/[^.;:!?¡]+[.;:!?]*/g)||[t];}
 var voiceOk=!!synth,heard=false,lastErr="",boundaryOK=false,cps=14;
-var AV="2",AUD="/audio/",hasRec=false,hasBg=false,player=new Audio(),bg=new Audio(),ac=null,gain=null,tok=0;
+var AV="2",AUD="/audio/",hasBg=false,
+VOICES=[{id:"adriana",n:"Adriana",dir:"/audio/adriana/"},{id:"leonardo",n:"Leonardo",dir:"/audio/"},{id:"carlos",n:"Carlos",dir:"/audio/carlos/"}],avail={},player=new Audio(),bg=new Audio(),ac=null,gain=null,tok=0;
 // AV: número de versión de los audios. Súbelo (2, 3...) cuando reemplaces un archivo para que todos descarguen el nuevo.
 var SILENT="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
 bg.loop=true;bg.preload="none";player.preload="auto";
+function curVoice(){
+if(S.src==="tts")return null;
+var v=VOICES.filter(function(x){return x.id===S.src&&avail[x.id];})[0];
+return v||VOICES.filter(function(x){return avail[x.id];})[0]||null;
+}
+function hasRec(){return !!curVoice();}
 function haltAudio(){try{player.pause();}catch(e){}}
-function unlockAudio(){if(!hasRec)return;try{player.src=SILENT;var p=player.play();if(p&&p.catch)p.catch(function(){});}catch(e){}}
+function unlockAudio(){if(!hasRec())return;try{player.src=SILENT;var p=player.play();if(p&&p.catch)p.catch(function(){});}catch(e){}}
 function bgVol(){if(gain)gain.gain.value=S.bgvol;else bg.volume=Math.min(1,S.bgvol);}
 function bgPlay(){
 if(!hasBg||!S.bg)return;
@@ -462,12 +469,12 @@ var p=bg.play();if(p&&p.catch)p.catch(function(){});
 function bgStop(){try{bg.pause();}catch(e){}}
 function playRec(key,text,id,k){
 return new Promise(function(res){
-if(!hasRec||S.src==="tts"){res(false);return;}
+var cv=curVoice();if(!cv){res(false);return;}
 var iv,me=++tok;
 function clean(){clearInterval(iv);}
 player.onerror=function(){clean();res(false);};
 player.onended=function(){clean();hl(k,text.length);res(true);};
-player.src=AUD+key+".mp3?v="+AV;
+player.src=cv.dir+key+".mp3?v="+AV;
 var p=player.play();if(p&&p.catch)p.catch(function(){clean();res(false);});
 iv=setInterval(function(){
 if(id!==runId||me!==tok){clean();res(true);return;}
@@ -646,17 +653,21 @@ document.getElementById("btnNext").onclick=function(){go(S.cur+1);};
 playBtn.onclick=function(){playing?stop():start();};
 function updateNote(){
 var n=document.getElementById("note");
-if((!synth||!voiceOk)&&!hasRec)n.textContent="Este navegador no tiene voz. Toca ▶ y el Rosario avanzará solo para que reces leyendo.";
+if((!synth||!voiceOk)&&!hasRec())n.textContent="Este navegador no tiene voz. Toca ▶ y el Rosario avanzará solo para que reces leyendo.";
 else if(S.mode==="silencio")n.textContent="Modo sin voz: avanza con «Siguiente».";
-else if(hasRec&&S.src==="rec")n.textContent="Toca ▶ y se rezará con la voz grabada, avanzando sola cuenta por cuenta.";
+else if(hasRec())n.textContent="Toca ▶ y rezará "+curVoice().n+", avanzando sola cuenta por cuenta.";
 else n.textContent="Toca ▶ y la voz rezará contigo, avanzando sola cuenta por cuenta.";
 }
 function toast(t){var d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(function(){d.remove();},3200);}
 var fSrc=document.getElementById("fSrc"),fBg=document.getElementById("fBg"),segSrc=document.getElementById("segSrc"),segBg=document.getElementById("segBg"),bgvol=document.getElementById("bgvol");
 bgvol.value=S.bgvol;
 function syncAudioUI(){
-fSrc.hidden=!hasRec;fBg.hidden=!hasBg;
-segSrc.querySelectorAll("button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.v===S.src);});
+var av=VOICES.filter(function(x){return avail[x.id];});
+fSrc.hidden=!av.length;fBg.hidden=!hasBg;
+segSrc.innerHTML="";
+av.forEach(function(x){var b=document.createElement("button");b.dataset.v=x.id;b.textContent=x.n;segSrc.appendChild(b);});
+var t=document.createElement("button");t.dataset.v="tts";t.textContent="Voz automática";segSrc.appendChild(t);
+segSrc.querySelectorAll("button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.v===(S.src==="tts"?"tts":(curVoice()?curVoice().id:"")));});
 segBg.querySelectorAll("button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.v===(S.bg?"on":"off"));});
 updateNote();
 }
@@ -664,7 +675,7 @@ segSrc.onclick=function(e){var b=e.target.closest("button");if(!b)return;S.src=b
 segBg.onclick=function(e){var b=e.target.closest("button");if(!b)return;S.bg=b.dataset.v==="on";save();syncAudioUI();if(playing){if(S.bg)bgPlay();else bgStop();}};
 bgvol.oninput=function(){S.bgvol=+bgvol.value;save();bgVol();};
 function probe(u,cb){try{fetch(u,{method:"HEAD"}).then(function(r){cb(r.ok&&/audio/i.test(r.headers.get("content-type")||""));}).catch(function(){cb(false);});}catch(e){cb(false);}}
-probe(AUD+"ave-g.mp3?v="+AV,function(ok){hasRec=ok;syncAudioUI();});
+VOICES.forEach(function(x){probe(x.dir+"ave-g.mp3?v="+AV,function(ok){avail[x.id]=ok;syncAudioUI();});});
 probe(AUD+"fondo.mp3?v="+AV,function(ok){hasBg=ok;if(ok)bg.src=AUD+"fondo.mp3?v="+AV;syncAudioUI();});
 var now=new Date();
 document.getElementById("today").textContent=DAYS[now.getDay()]+" · "+now.getDate()+" de "+["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"][now.getMonth()];
