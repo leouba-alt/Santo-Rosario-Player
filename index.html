@@ -103,6 +103,10 @@ input[type=range]{width:100%;accent-color:var(--wax)}
 .tip summary{cursor:pointer;font-weight:600;color:var(--lapis)}
 .tip p{margin:8px 0 0;color:var(--ink)}
 .reset{align-self:flex-start;background:none;border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:14px}
+.hbtns{display:flex;gap:8px;flex:none}
+.mlist{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.mlist li{background:var(--bg);border-radius:12px;padding:12px 14px;font-family:var(--f-text);font-size:calc(17px*var(--scale));line-height:1.35}
+.mlist li b{display:block;font-family:var(--f-ui);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--wax);font-weight:600;margin-bottom:2px}
 .done-card{text-align:center;align-items:center}
 .done-card .pname{font-size:26px}
 .toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:14px;z-index:5;max-width:calc(100% - 32px)}
@@ -116,9 +120,9 @@ input[type=range]{width:100%;accent-color:var(--wax)}
 <div class="eyebrow" id="today">Hoy</div>
 <h1>Misterios <em id="setName">Gloriosos</em></h1>
 </div>
-<button class="iconbtn" id="btnSettings" aria-label="Ajustes" aria-expanded="false">
+<div class="hbtns"><button class="iconbtn" id="btnMyst" aria-label="Consultar los misterios" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v15H5.5A1.5 1.5 0 0 0 4 20.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v15h5.5a1.5 1.5 0 0 1 1.5 1.5z"/></svg></button><button class="iconbtn" id="btnSettings" aria-label="Ajustes" aria-expanded="false">
 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
-</button>
+</button></div>
 </header>
 <section class="sheet" id="settings" hidden>
 <h2>Ajustes</h2>
@@ -149,6 +153,12 @@ input[type=range]{width:100%;accent-color:var(--wax)}
 <div class="field"><label for="scale">Tamaño de la letra</label><input type="range" id="scale" min="0.9" max="1.6" step="0.05" value="1"></div>
 <div class="field"><label for="intent">Mi intención (opcional)</label><input type="text" id="intent" placeholder="Por la salud de mi mamá…" maxlength="140"></div>
 <button class="reset" id="btnReset">Empezar el Rosario desde el inicio</button>
+</section>
+<section class="sheet" id="myst" hidden>
+<h2>Los misterios</h2>
+<div class="seg" id="segMyst"></div>
+<p class="help" id="mDays"></p>
+<ol class="mlist" id="mList"></ol>
 </section>
 <div class="beads"><svg id="ring" viewBox="0 0 300 360" role="img" aria-label="Cuentas del Rosario"></svg></div>
 <div class="progress" aria-hidden="true"><i id="bar"></i></div>
@@ -644,7 +654,21 @@ var intent=document.getElementById("intent");intent.value=S.intent;
 intent.oninput=function(){S.intent=intent.value.trim();if(steps[S.cur].k==="contricion")render();else save();};
 document.getElementById("btnReset").onclick=function(){stop();go(0);toggleSettings(false);};
 var settings=document.getElementById("settings"),btnSet=document.getElementById("btnSettings");
-function toggleSettings(on){settings.hidden=!on;btnSet.setAttribute("aria-expanded",on);}
+function toggleSettings(on){settings.hidden=!on;btnSet.setAttribute("aria-expanded",on);if(on)toggleMyst(false);}
+var mystPanel=document.getElementById("myst"),btnMyst=document.getElementById("btnMyst"),segMyst=document.getElementById("segMyst"),mK="gozosos",MORD=["gozosos","luminosos","dolorosos","gloriosos"];
+function toggleMyst(on){mystPanel.hidden=!on;btnMyst.setAttribute("aria-expanded",on);if(on){mK=setKey();drawMyst();}}
+function drawMyst(){
+segMyst.innerHTML="";
+MORD.forEach(function(k){var b=document.createElement("button");b.dataset.v=k;b.textContent=M[k].n;b.setAttribute("aria-pressed",k===mK);segMyst.appendChild(b);});
+var ds=[];BYDAY.forEach(function(k,i){if(k===mK)ds.push(i);});
+ds.sort(function(a,b){return (a||7)-(b||7);});
+document.getElementById("mDays").textContent="Se rezan los "+ds.map(function(i){return DAYS[i].toLowerCase();}).join(" y ")+".";
+var l=document.getElementById("mList");l.innerHTML="";
+M[mK].items.forEach(function(it,i){var li=document.createElement("li");var b=document.createElement("b");b.textContent=ORD[i]+" misterio";li.appendChild(b);li.appendChild(document.createTextNode(it[0]));l.appendChild(li);});
+}
+segMyst.onclick=function(e){var b=e.target.closest("button");if(!b)return;mK=b.dataset.v;drawMyst();};
+btnMyst.onclick=function(){toggleMyst(mystPanel.hidden);if(!mystPanel.hidden)toggleSettings(false);};
+
 btnSet.onclick=function(){toggleSettings(settings.hidden);};
 document.getElementById("btnPrev").onclick=function(){go(S.cur-1);};
 document.getElementById("btnNext").onclick=function(){go(S.cur+1);};
