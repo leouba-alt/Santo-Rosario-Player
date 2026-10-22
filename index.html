@@ -500,6 +500,8 @@ function fin(v){clearTimeout(t);durCache[u]=v;a.onloadedmetadata=a.onerror=null;
 a.preload="metadata";a.onloadedmetadata=function(){fin(isFinite(a.duration)?a.duration*1000:0);};a.onerror=function(){fin(0);};a.src=u;
 });
 }
+// Misterios 2 y 4 a dos coros: antes de la respuesta de la última Avemaría, la voz dice "Gloria".
+function lastAveCue(st){return S.mode==="coros"&&st.k==="ave"&&st.n===st.of&&userFirst(st);}
 function haltAudio(){try{player.pause();}catch(e){}}
 function unlockAudio(){if(!hasRec())return;try{player.src=SILENT;var p=player.play();if(p&&p.catch)p.catch(function(){});}catch(e){}}
 function bgVol(){if(gain)gain.gain.value=S.bgvol;else bg.volume=Math.min(1,S.bgvol);}
@@ -634,6 +636,7 @@ if(id!==runId)return;finishK(k);
 var co=S.mode==="coros";
 if(p.r&&co&&userFirst(st)){
 await turnoUsuario(p.g,"pg",st.k+"-g");if(id!==runId)return;
+if(lastAveCue(st)){await say("Gloria",id,null,"aviso-gloria");if(id!==runId)return;await wait(300,id);if(id!==runId)return;}
 await say(p.r,id,"pr",st.k+"-r");if(id!==runId)return;
 }else{
 await say(p.g,id,"pg",p.r?st.k+"-g":st.k);if(id!==runId)return;
