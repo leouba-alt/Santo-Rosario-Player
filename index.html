@@ -71,6 +71,12 @@ h1 em{font-style:normal;color:var(--wax)}
 .mystery .frase{font-style:italic;color:var(--ink);font-size:calc(17px*var(--scale))}
 .mystery .refl{font-style:normal;color:var(--muted)}
 .mystery .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-top:6px}
+.daily{position:relative;background:var(--glow);background:color-mix(in srgb,var(--wax) 12%,var(--surface));border:1px solid var(--wax);border-radius:16px;padding:16px 18px 16px 22px;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.daily::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--wax)}
+.daily .lbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--wax);font-weight:700}
+.daily .cita{font-size:13px;color:var(--wax);font-weight:600;letter-spacing:.02em}
+.daily .frase{margin:0;font-family:var(--f-text);font-style:italic;color:var(--ink);font-size:calc(18px*var(--scale));line-height:1.5}
+.daily .refl{margin:0;font-family:var(--f-text);color:var(--muted);font-size:calc(15px*var(--scale));line-height:1.5;border-top:1px solid var(--wax);padding-top:8px;margin-top:4px}
 .mystery.compact{border-top:none;padding:12px 14px;background:var(--bg);border-radius:12px;gap:2px}
 .mystery.compact b{font-family:var(--f-display);font-weight:400;font-size:16px}
 .mystery.compact .frase{font-size:calc(15px*var(--scale))}
@@ -162,6 +168,7 @@ input[type=range]{width:100%;accent-color:var(--wax)}
 </section>
 <div class="beads"><svg id="ring" viewBox="0 0 300 360" role="img" aria-label="Cuentas del Rosario"></svg></div>
 <div class="progress" aria-hidden="true"><i id="bar"></i></div>
+<aside class="daily" id="daily" hidden aria-label="Palabra de hoy"></aside>
 <article class="card" id="card" aria-live="polite"></article>
 <p class="note" id="note"></p>
 </div>
@@ -391,6 +398,8 @@ var st=steps[S.cur],m=M[setKey()],h="";
 document.getElementById("setName").textContent=m.n;
 document.getElementById("bar").style.width=(S.cur/(steps.length-1)*100)+"%";
 card.classList.toggle("done-card",st.k==="fin");
+var dEl=document.getElementById("daily");dEl.hidden=S.cur!==0;
+if(S.cur===0)dEl.innerHTML='<span class="lbl">Palabra de hoy</span><span class="cita">'+esc(daily.cita)+'</span><p class="frase">«'+esc(daily.frase)+'»</p><p class="refl">'+esc(daily.refl)+'</p>';
 if(st.k==="fin"){
 h='<div class="where"><span>Final</span></div><h2 class="pname">Rosario terminado</h2>'+
 '<p class="help">Que la Virgen María te acompañe hoy.</p>'+
@@ -405,7 +414,6 @@ var it=item(st.d);
 h+='<h2 class="pname" id="mt">'+wrap(it.t)+'</h2>';
 }else{
 var p=P[st.k];
-if(S.cur===0)h+='<div class="mystery daily"><span class="lbl">Palabra de hoy</span><span class="cita">'+esc(daily.cita)+'</span><p class="frase">«'+esc(daily.frase)+'»</p><span class="lbl">Reflexión</span><p class="refl">'+esc(daily.refl)+'</p></div>';
 if(st.d!=null){
 var iq=item(st.d);
 h+='<div class="mystery compact"><b>'+esc(iq.t)+'</b></div>';
