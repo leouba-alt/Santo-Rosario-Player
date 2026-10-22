@@ -444,7 +444,7 @@ return s;
 function chunks(t){return t.match(/[^.;:!?¡]+[.;:!?]*/g)||[t];}
 var voiceOk=!!synth,heard=false,lastErr="",boundaryOK=false,cps=14;
 var AV="2",AUD="/audio/",hasBg=false,
-VOICES=[{id:"adriana",n:"Adriana",dir:"/audio/adriana/"},{id:"leonardo",n:"Leonardo",dir:"/audio/Leonardo"},{id:"carlos",n:"Carlos",dir:"/audio/carlos/"}],avail={},player=new Audio(),bg=new Audio(),ac=null,gain=null,tok=0;
+VOICES=[{id:"adriana",n:"Adriana",dir:"/audio/adriana/"},{id:"leonardo",n:"Leonardo",dir:"/audio/Leonardo/"},{id:"carlos",n:"Carlos",dir:"/audio/carlos/"}],avail={},player=new Audio(),bg=new Audio(),ac=null,gain=null,tok=0;
 // AV: número de versión de los audios. Súbelo (2, 3...) cuando reemplaces un archivo para que todos descarguen el nuevo.
 var SILENT="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
 bg.loop=true;bg.preload="none";player.preload="auto";
