@@ -1,4 +1,4 @@
-const V = 'rosario-v2';
+const V = 'rosario-v3';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icon.png', '/apple-touch-icon.png', '/icons/icon-192.png', '/icons/icon-512.png'];
 self.addEventListener('install', e => {
   self.skipWaiting();
