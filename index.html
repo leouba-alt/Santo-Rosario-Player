@@ -166,6 +166,7 @@ input[type=range]{width:100%;accent-color:var(--wax)}
 <div class="field"><label for="scale">Tamaño de la letra</label><input type="range" id="scale" min="0.9" max="1.6" step="0.05" value="0.9"></div>
 <div class="field"><label for="intent">Mi intención (opcional)</label><input type="text" id="intent" placeholder="Por la salud de mi mamá…" maxlength="140"></div>
 <button class="reset" id="btnReset">Empezar el Rosario desde el inicio</button>
+<a class="shop" id="helpVideo" hidden target="_blank" rel="noopener"></a>
 </section>
 <section class="sheet" id="myst" hidden>
 <h2>Los misterios</h2>
@@ -395,6 +396,8 @@ var card=document.getElementById("card");
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
 function wrap(t){return String(t).replace(/[^\s]+|\s+/g,function(w,off){return /\s/.test(w[0])?w:'<span class="w" data-s="'+off+'">'+esc(w)+'</span>';});}
 // Pega aquí la dirección de tu sitio web (ej. "https://tusitio.com"). Si queda vacía, los enlaces no se muestran.
+// Pega aquí el enlace de tu video tutorial o instructivo (ej. "https://youtu.be/..."). Si queda vacío, el botón no se muestra.
+var HELP_URL="";
 var SITE_URL="https://www.tiendatyv.com";
 var SHOP_HTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.5-9 9-9 9z"/></svg><span><b>Conoce nuestra artesanía religiosa</b><small>Visita nuestro sitio web</small></span><span class="go">›</span>';
 var INVITE_HTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M18 8v6M15 11h6"/></svg><span><b>Invita a alguien a rezar contigo</b><small>Compárteles el enlace por WhatsApp u otra app</small></span><span class="go">›</span>';
@@ -711,6 +714,7 @@ var rate=document.getElementById("rate"),rateV=document.getElementById("rateV");
 function applySpeed(){S.speed=Math.max(0.7,Math.min(1.4,+S.speed||1));S.rate=0.9*S.speed;rate.value=S.speed;rateV.textContent=S.speed.toFixed(2).replace(/0$/,"")+"×";try{player.defaultPlaybackRate=S.speed;player.playbackRate=S.speed;}catch(e){}}
 applySpeed();rate.oninput=function(){S.speed=+rate.value;applySpeed();save();};
 shopLink(document.getElementById("shopSet"));
+(function(){var hv=document.getElementById("helpVideo");if(!hv)return;if(!HELP_URL){hv.hidden=true;return;}hv.href=HELP_URL;hv.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9.5v5l4.5-2.5z"/></svg><span><b>Ayuda</b><small>Mira el video tutorial</small></span><span class="go">›</span>';hv.hidden=false;})();
 var sc=document.getElementById("scale");sc.value=S.scale;
 function applyScale(){document.documentElement.style.setProperty("--scale",S.scale);}
 sc.oninput=function(){S.scale=+sc.value;applyScale();save();};
@@ -774,5 +778,7 @@ if(resumed)toast("Continúas donde quedaste");
 <script>
 if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});}
 </script>
+<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
