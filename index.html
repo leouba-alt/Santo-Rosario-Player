@@ -201,7 +201,7 @@ ave:{n:"Avemaría",g:"Dios te salve, María, llena eres de gracia, el Señor es 
 gloria:{n:"Gloria",g:"Gloria al Padre, y al Hijo, y al Espíritu Santo.",r:"Como era en el principio, ahora y siempre, por los siglos de los siglos. Amén."},
 fatima:{n:"Oh Jesús mío",g:"Oh Jesús mío, perdona nuestros pecados, líbranos del fuego del infierno, lleva al cielo a todas las almas, especialmente a las más necesitadas de tu misericordia."},
 salve:{n:"Salve",g:"Dios te salve, Reina y Madre de misericordia, vida, dulzura y esperanza nuestra; Dios te salve. A ti llamamos los desterrados hijos de Eva; a ti suspiramos, gimiendo y llorando, en este valle de lágrimas. Ea, pues, Señora, abogada nuestra, vuelve a nosotros esos tus ojos misericordiosos; y después de este destierro muéstranos a Jesús, fruto bendito de tu vientre. ¡Oh clementísima, oh piadosa, oh dulce Virgen María! Ruega por nosotros, Santa Madre de Dios, para que seamos dignos de alcanzar las promesas de nuestro Señor Jesucristo. Amén."},
-final:{n:"Señal de la Cruz",g:"En el nombre del Padre, y del Hijo, y del Espíritu Santo. Amén."}
+final:{n:"Dulce Madre",g:"Dulce Madre, no te alejes, tu vista de mí no apartes. Ven conmigo a todas partes y solo nunca me dejes. Ya que me proteges tanto como verdadera Madre, haz que me bendiga el Padre, el Hijo y el Espíritu Santo. Amén."}
 };
 var M = {
 gozosos:{n:"Gozosos",adj:"gozoso",items:[
@@ -397,8 +397,8 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;
 function wrap(t){return String(t).replace(/[^\s]+|\s+/g,function(w,off){return /\s/.test(w[0])?w:'<span class="w" data-s="'+off+'">'+esc(w)+'</span>';});}
 // Pega aquí la dirección de tu sitio web (ej. "https://tusitio.com"). Si queda vacía, los enlaces no se muestran.
 // Pega aquí el enlace de tu video tutorial o instructivo (ej. "https://youtu.be/..."). Si queda vacío, el botón no se muestra.
-var HELP_URL="https://www.tiendatyv.com";
-var ://www.tiendatyv.com/maranata/";
+var HELP_URL="";
+var SITE_URL="https://www.tiendatyv.com/maranata";
 var SHOP_HTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.5-9 9-9 9z"/></svg><span><b>Conoce nuestra artesanía religiosa</b><small>Visita nuestro sitio web</small></span><span class="go">›</span>';
 var INVITE_HTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M18 8v6M15 11h6"/></svg><span><b>Invita a alguien a rezar contigo</b><small>Compárteles el enlace por WhatsApp u otra app</small></span><span class="go">›</span>';
 function invite(){
